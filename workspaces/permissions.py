@@ -1,0 +1,2 @@
+class WorkspacePermission(BasePermission):
+    pass
