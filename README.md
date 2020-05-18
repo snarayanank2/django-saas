@@ -1,9 +1,9 @@
-* Workspaces
+# Workspaces
 
 Workspaces is a Django app.
 
 
-* Quick start
+## Quick start
 
 Add the following to your Django project's settings.py:
 
@@ -50,19 +50,21 @@ LOGGING = {
 }
 ```
 
+## Add basic paths
+
 Include the polls URLconf in your project urls.py like this::
 
 ```
     path('workspaces/', include('workspaces.urls')),
 ```
 
-Run the migrations using:
+## Run the migrations
 
 ```
 python manage.py migrate
 ```
 
-Start the development server
+## Start the development server
 
 ```
 python manage.py runserver
