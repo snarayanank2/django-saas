@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import Workspace, WorkspaceUser, Principal, Comment
 from django.contrib.auth.models import User
 
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -31,7 +30,7 @@ class PrincipalSerializer(serializers.ModelSerializer):
         fields = ['id', 'created_at', 'updated_at', 'workspace_user']
 
 class CommentSerializer(serializers.ModelSerializer):
-    created_by = PrincipalSerializer()
+    created_by = PrincipalSerializer(read_only=True)
 
     class Meta:
         model = Comment
