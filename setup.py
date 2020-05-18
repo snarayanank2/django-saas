@@ -13,9 +13,10 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',  
     keywords=['django', 'api', 'python', 'sdk'],
-    url='https://github.com/fylein/fyle-sdk-py',
+    url='https://github.com/snarayanank2/django-workspaces',
     packages=setuptools.find_packages(),
-    install_requires=['djangorestframework==3.11.0', 'django-filter==2.2.0', 'pyjwt==1.7.1'],
+    install_requires=['djangorestframework==3.11.0', 'django-filter==2.2.0', 'pyjwt==1.7.1', 'django-filter==2.2.0'
+],
     classifiers=[
         'Topic :: Internet :: WWW/HTTP',
         'Intended Audience :: Developers',
