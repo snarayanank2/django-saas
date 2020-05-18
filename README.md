@@ -8,6 +8,8 @@ Workspaces is a Django app.
 Add the following to your Django project's settings.py:
 
 ```
+SECRET_KEY = os.environ['SECRET_KEY']
+
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,6 +79,7 @@ python manage.py migrate
 ## Start the development server
 
 ```
+export SECRET_KEY=xxxxxxx
 python manage.py runserver
 ```
 
