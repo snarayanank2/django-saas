@@ -1,20 +1,24 @@
-from rest_framework import viewsets
-from rest_framework import permissions
-from .models import Workspace, WorkspaceUser, Principal, Comment
-from .serializers import UserSerializer, WorkspaceSerializer, WorkspaceUserSerializer, PrincipalSerializer, CommentSerializer
-from django.contrib.auth.models import User
-from .filters import WorkspaceUserFilter
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import authentication, permissions
 import logging
+
 from django.contrib.auth import authenticate
-from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
-from .jwt import JWTUtils
-from rest_framework.decorators import action
-from django.http.response import HttpResponseForbidden
-from workspaces.auth import AuthUtils
+from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
+from django.http.response import HttpResponseForbidden
+from rest_framework import authentication, filters, permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from workspaces.auth import AuthUtils
+
+from .filters import WorkspaceUserFilter
+from .jwt import JWTUtils
+from .models import Comment, Principal, Workspace, WorkspaceUser
+from .serializers import (CommentSerializer, PrincipalSerializer,
+                          UserSerializer, WorkspaceSerializer,
+                          WorkspaceUserSerializer)
+from django_filters.rest_framework.backends import DjangoFilterBackend
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +71,8 @@ class RefreshTokenView(APIView):
 class WorkspaceUserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = WorkspaceUser.objects.all()
     serializer_class = WorkspaceUserSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['workspace__id']
 
     def get_queryset(self):
         logger.info('hooking into get_queryset')
@@ -129,3 +135,8 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
 class CommentViewSet(WorkspaceModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['created_by__workspace_user__id']
+    search_fields = ['message']
+    ordering_fields = ['created_at']
+    ordering = 'created_at'
