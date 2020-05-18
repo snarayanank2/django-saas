@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Workspace, WorkspaceUser, Principal, Comment
+from .models import Workspace, WorkspaceUser, Principal, Comment, Tag
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,9 +29,16 @@ class PrincipalSerializer(serializers.ModelSerializer):
         model = Principal
         fields = ['id', 'created_at', 'updated_at', 'workspace_user']
 
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'name']
+
 class CommentSerializer(serializers.ModelSerializer):
     created_by = PrincipalSerializer(read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'message', 'created_at', 'created_by']
+        fields = ['id', 'message', 'created_at', 'created_by', 'tags']

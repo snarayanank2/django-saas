@@ -37,11 +37,15 @@ class Principal(BaseModel):
 
 class WorkspaceBaseModel(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
-    created_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='created_by')
-    updated_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='updated_by')
+    created_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+')
+    updated_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+')
 
     class Meta:
         abstract = True
 
+class Tag(WorkspaceBaseModel):
+    name = models.CharField(max_length=200)
+
 class Comment(WorkspaceBaseModel):
     message = models.CharField(max_length=1024)
+    tags = models.ManyToManyField(Tag, related_name="comments")

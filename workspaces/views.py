@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
 from django.http.response import HttpResponseForbidden
+from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import authentication, filters, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
@@ -12,13 +13,12 @@ from rest_framework.views import APIView
 
 from workspaces.auth import AuthUtils
 
-from .filters import WorkspaceUserFilter
+from .filters import CommentFilter, WorkspaceUserFilter
 from .jwt import JWTUtils
-from .models import Comment, Principal, Workspace, WorkspaceUser
+from .models import Comment, Principal, Tag, Workspace, WorkspaceUser
 from .serializers import (CommentSerializer, PrincipalSerializer,
-                          UserSerializer, WorkspaceSerializer,
+                          TagSerializer, UserSerializer, WorkspaceSerializer,
                           WorkspaceUserSerializer)
-from django_filters.rest_framework.backends import DjangoFilterBackend
 
 logger = logging.getLogger(__name__)
 
@@ -131,12 +131,16 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
             raise PermissionDenied()
         instance.delete()
 
+class TagViewSet(WorkspaceModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    ordering = 'created_at'
 
 class CommentViewSet(WorkspaceModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['created_by__workspace_user__id']
+    filterset_class = CommentFilter
     search_fields = ['message']
     ordering_fields = ['created_at']
     ordering = 'created_at'
