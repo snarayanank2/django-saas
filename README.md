@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'workspaces.apps.WorkspacesConfig',
+    ... # your apps go here
 ]
 
 MIDDLEWARE = [
@@ -24,6 +25,7 @@ MIDDLEWARE = [
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
     'workspaces.middleware.AuthMiddleware',
+    ... # any others go here
 ]
 
 REST_FRAMEWORK = {
@@ -34,6 +36,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+# Optional logging
 
 LOGGING = {
     'version': 1,
@@ -55,7 +59,13 @@ LOGGING = {
 Include the polls URLconf in your project urls.py like this::
 
 ```
-    path('workspaces/', include('workspaces.urls')),
+from django.contrib import admin
+from django.urls import include, path
+
+urlpatterns = [
+    path('', include('workspaces.urls')),
+    ... # other paths go here
+]
 ```
 
 ## Run the migrations

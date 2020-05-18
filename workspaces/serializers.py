@@ -9,9 +9,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['email', 'first_name', 'last_name']
 
 class WorkspaceSerializer(serializers.ModelSerializer):
+    owner = UserSerializer()
+
     class Meta:
         model = Workspace
-        fields = '__all__'
+        fields = ['id', 'created_at', 'updated_at', 'name', 'owner']
 
 class WorkspaceUserSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -23,12 +25,14 @@ class WorkspaceUserSerializer(serializers.ModelSerializer):
 
 class PrincipalSerializer(serializers.ModelSerializer):
     workspace_user = WorkspaceUserSerializer()
+
     class Meta:
         model = Principal
         fields = ['id', 'created_at', 'updated_at', 'workspace_user']
 
 class CommentSerializer(serializers.ModelSerializer):
-    created_by = PrincipalSerializer(read_only=True)
+    created_by = PrincipalSerializer()
+
     class Meta:
         model = Comment
         fields = ['id', 'message', 'created_at', 'created_by']
