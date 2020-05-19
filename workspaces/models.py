@@ -48,4 +48,8 @@ class Tag(WorkspaceBaseModel):
 
 class Comment(WorkspaceBaseModel):
     message = models.CharField(max_length=1024)
-    tags = models.ManyToManyField(Tag, related_name="comments")
+    tags = models.ManyToManyField(Tag, through='CommentTag')
+
+class CommentTag(WorkspaceBaseModel):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)

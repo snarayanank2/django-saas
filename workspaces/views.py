@@ -15,10 +15,10 @@ from workspaces.auth import AuthUtils
 
 from .filters import CommentFilter, WorkspaceUserFilter
 from .jwt import JWTUtils
-from .models import Comment, Principal, Tag, Workspace, WorkspaceUser
+from .models import Comment, Principal, Tag, Workspace, WorkspaceUser, CommentTag
 from .serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
-                          WorkspaceUserSerializer)
+                          WorkspaceUserSerializer, CommentTagSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -143,4 +143,11 @@ class CommentViewSet(WorkspaceModelViewSet):
     filterset_class = CommentFilter
     search_fields = ['message']
     ordering_fields = ['created_at']
+    ordering = 'created_at'
+
+class CommentTagViewSet(WorkspaceModelViewSet):
+    queryset = CommentTag.objects.all()
+    serializer_class = CommentTagSerializer
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = CommentTagFilter
     ordering = 'created_at'

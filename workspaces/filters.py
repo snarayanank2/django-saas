@@ -18,3 +18,4 @@ class CommentFilter(filters.FilterSet):
     class Meta:
         model = Comment
         fields = ['tag', 'message']
+
