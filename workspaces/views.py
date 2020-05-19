@@ -15,10 +15,10 @@ from workspaces.auth import AuthUtils
 
 from .filters import CommentFilter, WorkspaceUserFilter
 from .jwt import JWTUtils
-from .models import Comment, Principal, Tag, Workspace, WorkspaceUser, CommentTag
+from .models import Comment, Principal, Tag, Workspace, WorkspaceUser
 from .serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
-                          WorkspaceUserSerializer, CommentTagSerializer)
+                          WorkspaceUserSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +122,9 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
         created_by = principal
         updated_by = principal
         workspace = principal.workspace_user.workspace
+        # serializer.validate()
+        # data = serializer.validated_data
+        # logger.info('create data %s', data)
         serializer.save(created_by=created_by, updated_by=updated_by, workspace=workspace)
 
     def perform_destroy(self, instance):
@@ -145,9 +148,3 @@ class CommentViewSet(WorkspaceModelViewSet):
     ordering_fields = ['created_at']
     ordering = 'created_at'
 
-class CommentTagViewSet(WorkspaceModelViewSet):
-    queryset = CommentTag.objects.all()
-    serializer_class = CommentTagSerializer
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_class = CommentTagFilter
-    ordering = 'created_at'

@@ -1,13 +1,13 @@
-from django.db import models
-from .auth import AuthUtils
-
-# Create your models here.
-
-from django.contrib.auth.models import User
-# import the logging library
 import logging
 
-# Get an instance of a logger
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
+
+from .auth import AuthUtils
+
 logger = logging.getLogger(__name__)
 
 class BaseModel(models.Model):
@@ -48,8 +48,4 @@ class Tag(WorkspaceBaseModel):
 
 class Comment(WorkspaceBaseModel):
     message = models.CharField(max_length=1024)
-    tags = models.ManyToManyField(Tag, through='CommentTag')
-
-class CommentTag(WorkspaceBaseModel):
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    tags = models.ManyToManyField(Tag)

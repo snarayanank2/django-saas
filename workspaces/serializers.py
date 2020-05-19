@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import Workspace, WorkspaceUser, Principal, Comment, Tag, CommentTag
+from .models import Workspace, WorkspaceUser, Principal, Comment, Tag
 from django.contrib.auth.models import User
 import logging
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -32,45 +33,16 @@ class PrincipalSerializer(serializers.ModelSerializer):
         model = Principal
         fields = ['id', 'created_at', 'updated_at', 'workspace_user']
 
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ['id', 'name']
 
-class TagRefSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    class Meta:
-        model = Tag
-        fields = ['id']
-
-class CommentSerializer(serializers.ModelSerializer):
+class CommentSerializer(WritableNestedModelSerializer):
     created_by = PrincipalSerializer(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True)
 
     class Meta:
         model = Comment
         fields = ['id', 'message', 'created_at', 'created_by', 'tags']
 
-class CommentRefSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    class Meta:
-        model = Comment
-        fields = ['id']
-
-class CommentTagSerializer(serializers.ModelSerializer):
-    tag = TagRefSerializer()
-    comment = CommentRefSerializer()
-
-    class Meta:
-        model = CommentTag
-        fields = ['tag', 'comment']
-
-    def create(self, validated_data):
-        logger.info('validated data = %s', validated_data)
-        tag_data = validated_data.pop('tag')
-        tag = Tag.objects.get(pk=tag_data['id'])
-        comment_data = validated_data.pop('comment')
-        comment = Comment.objects.get(pk=comment_data['id'])
-        comment_tag = CommentTag.objects.create(**validated_data, comment=comment, tag=tag)
-        return comment_tag

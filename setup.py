@@ -15,7 +15,8 @@ setuptools.setup(
     keywords=['django', 'api', 'python', 'sdk'],
     url='https://github.com/snarayanank2/django-workspaces',
     packages=setuptools.find_packages(),
-    install_requires=['djangorestframework==3.11.0', 'django-filter==2.2.0', 'pyjwt==1.7.1', 'django-filter==2.2.0'
+    install_requires=['djangorestframework==3.11.0', 'django-filter==2.2.0', 
+        'pyjwt==1.7.1', 'django-filter==2.2.0', 'drf-writable-nested==0.6.0'
 ],
     classifiers=[
         'Topic :: Internet :: WWW/HTTP',
