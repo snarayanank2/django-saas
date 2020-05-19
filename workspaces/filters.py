@@ -12,10 +12,10 @@ class WorkspaceUserFilter(filters.FilterSet):
         }
 
 class CommentFilter(filters.FilterSet):
-    tag = filters.CharFilter(field_name='tags__name', lookup_expr='contains')
+    tag_name = filters.CharFilter(field_name='tags__name', lookup_expr='contains')
     message = filters.CharFilter(field_name='message', lookup_expr='contains')
 
     class Meta:
         model = Comment
-        fields = ['tag', 'message']
+        fields = ['tag_name', 'message']
 
