@@ -5,12 +5,12 @@ from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
 from django.http.response import HttpResponseForbidden
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework import authentication, filters, permissions, viewsets
+from rest_framework import authentication, filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.parsers import FileUploadParser
 from workspaces.auth import AuthUtils
 
 from .filters import CommentFilter, WorkspaceUserFilter
@@ -18,7 +18,9 @@ from .jwt import JWTUtils
 from .models import Comment, Principal, Tag, Workspace, WorkspaceUser
 from .serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
-                          WorkspaceUserSerializer)
+                          WorkspaceUserSerializer, AttachmentSerializer)
+from workspaces.models import Attachment
+from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +140,36 @@ class TagViewSet(WorkspaceModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     ordering = 'created_at'
+
+class AttachmentUploadView(APIView):
+    parser_class = (FileUploadParser, )
+
+    def post(self, request, *args, **kwargs):
+        # logger.info('request %s', request)
+        # logger.info('request.Meta %s', request.META)
+        principal = AuthUtils.get_current_principal()
+        created_by = principal
+        updated_by = principal
+        workspace = principal.workspace_user.workspace
+        attachment_serializer = AttachmentSerializer(data=request.data)
+        attachment_serializer.is_valid(raise_exception=True)
+        attachment = attachment_serializer.save(created_by=created_by, updated_by=updated_by, workspace=workspace)
+        return Response(attachment_serializer.data, status=status.HTTP_201_CREATED)
+
+class AttachmentDownloadView(APIView):
+
+    def get(self, request, pk, *args, **kwargs):
+        # logger.info('request %s', request)
+        # logger.info('request.Meta %s', request.META)
+        # logger.info('request.pk %s', pk)
+        principal = AuthUtils.get_current_principal()
+        attachment = Attachment.objects.get(pk=pk)
+        if attachment.workspace != principal.workspace_user.workspace:
+            raise PermissionDenied()
+        out = attachment.file.open(mode='rb')
+        response = HttpResponse(out.read(), content_type=f'{attachment.content_type}')
+        response['Content-Disposition'] = f'attachment; filename="{attachment.filename}"'
+        return response
 
 class CommentViewSet(WorkspaceModelViewSet):
     queryset = Comment.objects.all()

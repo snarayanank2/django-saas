@@ -1,8 +1,11 @@
-from rest_framework import serializers
-from .models import Workspace, WorkspaceUser, Principal, Comment, Tag
-from django.contrib.auth.models import User
 import logging
+
+from django.contrib.auth.models import User
 from drf_writable_nested.serializers import WritableNestedModelSerializer
+from rest_framework import serializers
+
+from .models import (Attachment, Comment, Principal, Tag, Workspace,
+                     WorkspaceUser)
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +41,11 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ['id', 'name']
 
+class AttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attachment
+        fields = ['id', 'file', 'content_type', 'filename']
+
 class CommentSerializer(WritableNestedModelSerializer):
     created_by = PrincipalSerializer(read_only=True)
     tags = TagSerializer(many=True)
@@ -45,4 +53,3 @@ class CommentSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'message', 'created_at', 'created_by', 'tags']
-

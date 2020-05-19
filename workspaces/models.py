@@ -46,6 +46,15 @@ class WorkspaceBaseModel(BaseModel):
 class Tag(WorkspaceBaseModel):
     name = models.CharField(max_length=200)
 
+class Attachment(WorkspaceBaseModel):
+    file = models.FileField(blank=False, null=False)
+    content_type = models.CharField(max_length=100)
+    filename = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.file.name
+
+
 class Comment(WorkspaceBaseModel):
     message = models.CharField(max_length=1024)
     tags = models.ManyToManyField(Tag)

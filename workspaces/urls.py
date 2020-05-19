@@ -13,5 +13,7 @@ router.register(r'comments', views.CommentViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('auth/basic/', views.BasicAuthSigninView.as_view()),
-    path('auth/token/refresh/', views.RefreshTokenView.as_view())
+    path('auth/token/refresh/', views.RefreshTokenView.as_view()),
+    path('attachments/', views.AttachmentUploadView.as_view()),
+    path('attachments/<int:pk>/', views.AttachmentDownloadView.as_view()),
 ]
