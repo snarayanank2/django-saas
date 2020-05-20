@@ -58,3 +58,4 @@ class Attachment(WorkspaceBaseModel):
 class Comment(WorkspaceBaseModel):
     message = models.CharField(max_length=1024)
     tags = models.ManyToManyField(Tag)
+    attachments = models.ManyToManyField(Attachment)
