@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'django_q',
     'workspaces.apps.WorkspacesConfig',
 ]
 
@@ -140,4 +141,14 @@ LOGGING = {
         'handlers': ['console'],
         'level': 'INFO',
     },
+}
+
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 4,
+    'timeout': 90,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default'
 }

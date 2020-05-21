@@ -5,7 +5,7 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-
+from django_q.models import Task
 from .auth import AuthUtils
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,13 @@ class BaseModel(models.Model):
 class Workspace(BaseModel):
     name = models.CharField(max_length=200)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
+
+class WorkspaceTask(models.Model):
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['workspace']
 
 class WorkspaceUser(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
