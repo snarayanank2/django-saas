@@ -5,7 +5,7 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django_q.models import Task
+from django_q.models import Schedule, Task
 from .auth import AuthUtils
 
 logger = logging.getLogger(__name__)
@@ -17,16 +17,34 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+def dummy_async_task():
+    print('this is a dummy async task')
+
 class Workspace(BaseModel):
     name = models.CharField(max_length=200)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
 
-class WorkspaceTask(models.Model):
+    def create_schedule(self, *args, **kwargs):
+        workspace = self
+        kwargs_copy = kwargs.copy()
+        if 'repeats' not in kwargs_copy:
+            kwargs_copy['repeats'] = 1
+        schedule = Schedule.objects.create(*args, **kwargs_copy)
+#        logger.info('schedule = %s', schedule)
+        WorkspaceSchedule.objects.create(workspace=workspace, schedule=schedule)
+
+
+class WorkspaceSchedule(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['workspace']
+
+    @property
+    def tasks(self):
+        return Task.objects.filter(group=self.schedule.id)
+
 
 class WorkspaceUser(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)

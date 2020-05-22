@@ -5,8 +5,10 @@ from . import views
 router = routers.DefaultRouter()
 router.register(r'workspaces', views.WorkspaceViewSet)
 router.register(r'workspaceusers', views.WorkspaceUserViewSet)
+router.register(r'workspaceschedules', views.WorkspaceScheduleViewSet)
 router.register(r'tags', views.TagViewSet)
 router.register(r'comments', views.CommentViewSet)
+
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

@@ -15,10 +15,10 @@ from workspaces.auth import AuthUtils
 
 from .filters import CommentFilter, WorkspaceUserFilter
 from .jwt import JWTUtils
-from .models import Comment, Principal, Tag, Workspace, WorkspaceUser
+from .models import Comment, Principal, Tag, Workspace, WorkspaceUser, WorkspaceSchedule
 from .serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
-                          WorkspaceUserSerializer, AttachmentSerializer)
+                          WorkspaceUserSerializer, AttachmentSerializer, WorkspaceScheduleSerializer)
 from workspaces.models import Attachment
 from django.http import HttpResponse
 
@@ -124,9 +124,6 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
         created_by = principal
         updated_by = principal
         workspace = principal.workspace_user.workspace
-        # serializer.validate()
-        # data = serializer.validated_data
-        # logger.info('create data %s', data)
         serializer.save(created_by=created_by, updated_by=updated_by, workspace=workspace)
 
     def perform_destroy(self, instance):
@@ -135,6 +132,15 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
         if instance.created_by != principal:
             raise PermissionDenied()
         instance.delete()
+
+class WorkspaceScheduleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = WorkspaceSchedule.objects.all()
+    serializer_class = WorkspaceScheduleSerializer
+    ordering = 'created_at'
+
+    def get_queryset(self):
+        principal = AuthUtils.get_current_principal()
+        return super().get_queryset().filter(workspace=principal.workspace_user.workspace).order_by('-created_at')
 
 class TagViewSet(WorkspaceModelViewSet):
     queryset = Tag.objects.all()

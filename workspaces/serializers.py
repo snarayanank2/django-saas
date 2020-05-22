@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from .models import (Attachment, Comment, Principal, Tag, Workspace,
-                     WorkspaceUser)
+                     WorkspaceUser, WorkspaceSchedule)
+from django_q.models import Schedule, Task
 from rest_framework.relations import PrimaryKeyRelatedField
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,19 @@ class PrincipalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Principal
         fields = ['id', 'created_at', 'updated_at', 'workspace_user']
+
+class ScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = ['name', 'func', 'args', 'kwargs', 'schedule_type', 'repeats', 'next_run']
+
+class WorkspaceScheduleSerializer(serializers.ModelSerializer):
+    workspace = WorkspaceSerializer()
+    schedule = ScheduleSerializer()
+
+    class Meta:
+        model = WorkspaceSchedule
+        fields = ['created_at', 'id', 'workspace', 'schedule']
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
