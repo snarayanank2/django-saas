@@ -41,8 +41,8 @@ class Workspace(BaseModel):
 
 
 class WorkspaceSchedule(BaseModel):
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
-    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, related_name='+')
 
     class Meta:
         ordering = ['workspace']
@@ -53,8 +53,8 @@ class WorkspaceSchedule(BaseModel):
 
 
 class WorkspaceUser(BaseModel):
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     role = models.CharField(max_length=200)
 
     class Meta:

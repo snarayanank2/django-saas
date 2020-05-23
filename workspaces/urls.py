@@ -3,10 +3,9 @@ from rest_framework import routers
 from . import views
 
 router = routers.DefaultRouter()
+router.register(r'client_applications', views.ClientApplicationViewSet)
 router.register(r'workspaces', views.WorkspaceViewSet)
-router.register(r'clientapplications', views.ClientApplicationViewSet)
-router.register(r'workspaceusers', views.WorkspaceUserViewSet)
-router.register(r'workspaceschedules', views.WorkspaceScheduleViewSet)
+router.register(r'schedules', views.ScheduleViewSet)
 router.register(r'tags', views.TagViewSet)
 router.register(r'comments', views.CommentViewSet)
 

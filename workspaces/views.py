@@ -17,9 +17,10 @@ from .filters import CommentFilter, WorkspaceUserFilter
 from .jwt import JWTUtils
 from .models import (Comment, Principal, Tag, Workspace, WorkspaceUser, WorkspaceSchedule, ClientApplication,
                     Attachment)
+from django_q.models import Schedule
 from .serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
-                          WorkspaceUserSerializer, AttachmentSerializer, WorkspaceScheduleSerializer,
+                          WorkspaceUserSerializer, AttachmentSerializer, ScheduleSerializer,
                           ClientApplicationSerializer)
 from django.http import HttpResponse
 
@@ -36,6 +37,17 @@ class WorkspaceViewSet(viewsets.ReadOnlyModelViewSet):
                 Exists(WorkspaceUser.objects.filter(workspace=OuterRef('pk'), user=principal.workspace_user.user))
             ).order_by('-created_at')
 
+    @action(detail=True, methods=['post'])
+    def auth(self, request, pk=None):
+        principal = AuthUtils.get_current_principal()
+        workspace = self.get_object()
+        workspace_user = WorkspaceUser.objects.get(workspace=workspace, user=principal.workspace_user.user)
+        # TODO: catch exception above
+        (principal, created) = Principal.objects.get_or_create(workspace_user=workspace_user, client_application=principal.client_application)
+        refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
+        access_token = JWTUtils.get_access_token(principal_id=principal.id)
+        return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
+
     # TODO: add support for creating workspace
 
 class ClientApplicationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -46,6 +58,16 @@ class ClientApplicationViewSet(viewsets.ReadOnlyModelViewSet):
 #     queryset = Principal.objects.all()
 #     serializer_class = PrincipalSerializer
 
+class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+
+    def get_queryset(self):
+        principal = AuthUtils.get_current_principal()
+        return Schedule.objects.filter(
+            Exists(WorkspaceSchedule.objects.filter(schedule=OuterRef('pk'), workspace=principal.workspace_user.workspace))
+        ).order_by('id')
+
 class BasicAuthSigninView(APIView):
     def post(self, request, format=None):
         """
@@ -53,10 +75,10 @@ class BasicAuthSigninView(APIView):
         """
         email = request.data.get('email', None)
         password = request.data.get('password', None)
-        app_name = request.data.get('app_name', 'webapp')
         user = authenticate(username=email, password=password)
         if user is None:
             raise AuthenticationFailed()
+        app_name = request.data.get('app_name', 'webapp')
         client_application = ClientApplication.objects.get(name=app_name)
         workspace_user = WorkspaceUser.objects.filter(user=user).order_by('-created_at').all()[0]
         (principal, created) = Principal.objects.get_or_create(workspace_user=workspace_user, client_application=client_application)
@@ -76,28 +98,6 @@ class RefreshTokenView(APIView):
         principal = AuthUtils.get_current_principal()
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'access_token' : access_token })
-
-class WorkspaceUserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = WorkspaceUser.objects.all()
-    serializer_class = WorkspaceUserSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['workspace__id']
-
-    def get_queryset(self):
-        logger.info('hooking into get_queryset')
-        principal = AuthUtils.get_current_principal()
-        return WorkspaceUser.objects.filter(user=principal.workspace_user.user).order_by('-created_at')
-
-    @action(detail=True, methods=['post'])
-    def auth(self, request, pk=None):
-        principal = AuthUtils.get_current_principal()
-        workspace_user = self.get_object()
-        if principal.workspace_user.user != workspace_user.user:
-            raise PermissionDenied()
-        (principal, created) = Principal.objects.get_or_create(workspace_user=workspace_user)
-        refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
-        access_token = JWTUtils.get_access_token(principal_id=principal.id)
-        return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
 
 class WorkspaceModelViewSet(viewsets.ModelViewSet):
@@ -140,14 +140,6 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
             raise PermissionDenied()
         instance.delete()
 
-class WorkspaceScheduleViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = WorkspaceSchedule.objects.all()
-    serializer_class = WorkspaceScheduleSerializer
-    ordering = 'created_at'
-
-    def get_queryset(self):
-        principal = AuthUtils.get_current_principal()
-        return super().get_queryset().filter(workspace=principal.workspace_user.workspace).order_by('-created_at')
 
 class TagViewSet(WorkspaceModelViewSet):
     queryset = Tag.objects.all()
