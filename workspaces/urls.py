@@ -15,8 +15,9 @@ router.register(r'comments', views.CommentViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
-    path('auth/basic/', views.BasicAuthSigninView.as_view()),
-    path('auth/token/refresh/', views.RefreshTokenView.as_view()),
+    path('auth/basic/signin/', views.BasicAuthSigninView.as_view()),
+    path('auth/basic/signup/', views.BasicAuthSignupView.as_view()),
+    path('auth/refresh_token/', views.RefreshTokenView.as_view()),
     path('attachments/', views.AttachmentUploadView.as_view()),
     path('attachments/<int:pk>/', views.AttachmentDownloadView.as_view()),
 ]

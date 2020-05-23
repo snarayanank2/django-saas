@@ -23,6 +23,7 @@ from .serializers import (CommentSerializer, PrincipalSerializer,
                           WorkspaceUserSerializer, AttachmentSerializer, ScheduleSerializer,
                           ClientApplicationSerializer)
 from django.http import HttpResponse
+from django.contrib.auth.hashers import make_password
 
 logger = logging.getLogger(__name__)
 
@@ -63,25 +64,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
                 Exists(WorkspaceUser.objects.filter(user=OuterRef('pk'), workspace=principal.workspace))
             ).order_by('-username')
 
-class ClientApplicationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ClientApplication.objects.all()
-    serializer_class = ClientApplicationSerializer
-
-# class PrincipalViewSet(viewsets.ModelViewSet):
-#     queryset = Principal.objects.all()
-#     serializer_class = PrincipalSerializer
-
-class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Schedule.objects.all()
-    serializer_class = ScheduleSerializer
-
-    def get_queryset(self):
-        principal = AuthUtils.get_current_principal()
-        return Schedule.objects.filter(
-            Exists(WorkspaceSchedule.objects.filter(schedule=OuterRef('pk'), workspace=principal.workspace))
-        ).order_by('id')
-
-
 class BasicAuthSigninView(APIView):
     def post(self, request, format=None):
         """
@@ -102,8 +84,25 @@ class BasicAuthSigninView(APIView):
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
 class BasicAuthSignupView(APIView):
-    # TODO: support signup
-    pass
+    def post(self, request, format=None):
+        """
+        Should return access_token, refresh_token
+        """
+        email = request.data.get('email', None)
+        first_name = request.data.get('first_name', None)
+        last_name = request.data.get('last_name', None)
+        password = request.data.get('password', None) # should confirm password come here?
+        if User.objects.filter(username=email).exists():
+            raise PermissionDenied()
+        user = User.objects.create(first_name=first_name, last_name=last_name, email=email, username=email, password=make_password(password))
+        app_name = request.data.get('app_name', 'webapp')
+        client_application = ClientApplication.objects.get(name=app_name)
+        workspace = Workspace.objects.create(name='Default')
+        workspace_user = WorkspaceUser.objects.create(user=user, workspace=workspace)
+        (principal, created) = Principal.objects.get_or_create(workspace=workspace_user.workspace, user=workspace_user.user, client_application=client_application)
+        refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
+        access_token = JWTUtils.get_access_token(principal_id=principal.id)
+        return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
 class RefreshTokenView(APIView):
     def post(self, request, format=None):
@@ -113,6 +112,24 @@ class RefreshTokenView(APIView):
         principal = AuthUtils.get_current_principal()
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'access_token' : access_token })
+
+class ClientApplicationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ClientApplication.objects.all()
+    serializer_class = ClientApplicationSerializer
+
+# class PrincipalViewSet(viewsets.ModelViewSet):
+#     queryset = Principal.objects.all()
+#     serializer_class = PrincipalSerializer
+
+class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+
+    def get_queryset(self):
+        principal = AuthUtils.get_current_principal()
+        return Schedule.objects.filter(
+            Exists(WorkspaceSchedule.objects.filter(schedule=OuterRef('pk'), workspace=principal.workspace))
+        ).order_by('id')
 
 
 class WorkspaceModelViewSet(viewsets.ModelViewSet):
