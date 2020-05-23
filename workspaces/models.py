@@ -61,11 +61,12 @@ class WorkspaceUser(BaseModel):
         ordering = ['workspace']
 
 class Principal(BaseModel):
-    workspace_user = models.ForeignKey(WorkspaceUser, on_delete=models.CASCADE)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     client_application = models.ForeignKey(ClientApplication, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['workspace_user']
+        ordering = ['created_at']
 
 # This is the important class that others should inherit from
 

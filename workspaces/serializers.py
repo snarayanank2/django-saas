@@ -36,17 +36,18 @@ class WorkspaceUserSerializer(serializers.ModelSerializer):
         fields = ['id', 'workspace', 'user']
 
 class PrincipalSerializer(serializers.ModelSerializer):
-    workspace_user = WorkspaceUserSerializer()
+    workspace = WorkspaceSerializer()
+    user = UserSerializer()
     client_application = ClientApplicationSerializer()
 
     class Meta:
         model = Principal
-        fields = ['id', 'workspace_user', 'client_application']
+        fields = ['id', 'workspace', 'user', 'client_application']
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
-        fields = ['name', 'func', 'args', 'kwargs', 'schedule_type', 'repeats', 'next_run']
+        fields = ['id', 'name', 'func', 'args', 'kwargs', 'schedule_type', 'repeats', 'next_run']
 
 class WorkspaceScheduleSerializer(serializers.ModelSerializer):
     workspace = WorkspaceSerializer()
