@@ -53,7 +53,15 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
-    # TODO: add support for creating workspace
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        principal = AuthUtils.get_current_principal()
+        return User.objects.filter(
+                Exists(WorkspaceUser.objects.filter(user=OuterRef('pk'), workspace=principal.workspace))
+            ).order_by('-username')
 
 class ClientApplicationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ClientApplication.objects.all()
@@ -72,6 +80,7 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
         return Schedule.objects.filter(
             Exists(WorkspaceSchedule.objects.filter(schedule=OuterRef('pk'), workspace=principal.workspace))
         ).order_by('id')
+
 
 class BasicAuthSigninView(APIView):
     def post(self, request, format=None):
