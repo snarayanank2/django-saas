@@ -19,7 +19,6 @@ class BaseModel(models.Model):
 
 class ClientApplication(BaseModel):
     name = models.CharField(max_length=200)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     class Meta:
         ordering = ['id']
 
@@ -28,7 +27,6 @@ def dummy_async_task():
 
 class Workspace(BaseModel):
     name = models.CharField(max_length=200)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
 
     def create_schedule(self, *args, **kwargs):
         workspace = self
@@ -55,10 +53,12 @@ class WorkspaceSchedule(BaseModel):
 class WorkspaceUser(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
-    role = models.CharField(max_length=200)
 
     class Meta:
         ordering = ['workspace']
+        constraints = [
+            models.UniqueConstraint(fields= ['workspace','user'], name='unique_workspace_user')
+        ]
 
 class Principal(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)

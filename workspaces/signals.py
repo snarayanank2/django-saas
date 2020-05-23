@@ -9,8 +9,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 def user_save(sender, instance, created, **kwargs):
-    if created:
-        w = Workspace(name='Default', owner=instance)
-        w.save()
-        wu = WorkspaceUser(workspace=w, user=instance)
-        wu.save()
+    pass
+    # if created:
+    #     w = Workspace(name='Default', owner=instance)
+    #     w.save()
+    #     wu = WorkspaceUser(workspace=w, user=instance)
+    #     wu.save()

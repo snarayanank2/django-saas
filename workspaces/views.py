@@ -26,7 +26,7 @@ from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
-class WorkspaceViewSet(viewsets.ReadOnlyModelViewSet):
+class WorkspaceViewSet(viewsets.ModelViewSet):
     queryset = Workspace.objects.all()
     serializer_class = WorkspaceSerializer
 
@@ -36,6 +36,13 @@ class WorkspaceViewSet(viewsets.ReadOnlyModelViewSet):
         return Workspace.objects.filter(
                 Exists(WorkspaceUser.objects.filter(workspace=OuterRef('pk'), user=principal.user))
             ).order_by('-created_at')
+
+    def create(self, request):
+        res = super().create(request)
+        workspace = Workspace.objects.get(pk=res.data['id'])
+        principal = AuthUtils.get_current_principal()
+        workspace_user = WorkspaceUser.objects.create(workspace=workspace, user=principal.user)
+        return res
 
     @action(detail=True, methods=['post'])
     def auth(self, request, pk=None):

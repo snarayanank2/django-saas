@@ -16,11 +16,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['email', 'first_name', 'last_name']
 
 class WorkspaceSerializer(serializers.ModelSerializer):
-    owner = UserSerializer()
-
     class Meta:
         model = Workspace
-        fields = ['id', 'name', 'owner']
+        fields = ['id', 'name']
 
 class ClientApplicationSerializer(serializers.ModelSerializer):
     class Meta:
