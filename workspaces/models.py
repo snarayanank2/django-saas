@@ -17,6 +17,12 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+class ClientApplication(BaseModel):
+    name = models.CharField(max_length=200)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    class Meta:
+        ordering = ['id']
+
 def dummy_async_task():
     print('this is a dummy async task')
 
@@ -33,12 +39,6 @@ class Workspace(BaseModel):
 #        logger.info('schedule = %s', schedule)
         WorkspaceSchedule.objects.create(workspace=workspace, schedule=schedule)
 
-
-class Application(BaseModel):
-    name = models.CharField(max_length=200)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
-    class Meta:
-        ordering = ['id']
 
 class WorkspaceSchedule(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
@@ -62,10 +62,12 @@ class WorkspaceUser(BaseModel):
 
 class Principal(BaseModel):
     workspace_user = models.ForeignKey(WorkspaceUser, on_delete=models.CASCADE)
-    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    client_application = models.ForeignKey(ClientApplication, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['workspace_user']
+
+# This is the important class that others should inherit from
 
 class WorkspaceBaseModel(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)

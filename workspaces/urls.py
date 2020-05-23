@@ -4,6 +4,7 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register(r'workspaces', views.WorkspaceViewSet)
+router.register(r'clientapplications', views.ClientApplicationViewSet)
 router.register(r'workspaceusers', views.WorkspaceUserViewSet)
 router.register(r'workspaceschedules', views.WorkspaceScheduleViewSet)
 router.register(r'tags', views.TagViewSet)
