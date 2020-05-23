@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from .models import (Attachment, Comment, Principal, Tag, Workspace,
-                     WorkspaceUser, WorkspaceSchedule)
+                     WorkspaceUser, WorkspaceSchedule, Application)
 from django_q.models import Schedule, Task
 from rest_framework.relations import PrimaryKeyRelatedField
 
@@ -20,7 +20,12 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workspace
-        fields = ['id', 'created_at', 'updated_at', 'name', 'owner']
+        fields = ['id', 'name', 'owner']
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ['id', 'name']
 
 class WorkspaceUserSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -28,14 +33,15 @@ class WorkspaceUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorkspaceUser
-        fields = ['id', 'created_at', 'updated_at', 'workspace', 'user']
+        fields = ['id', 'workspace', 'user']
 
 class PrincipalSerializer(serializers.ModelSerializer):
     workspace_user = WorkspaceUserSerializer()
+    application = ApplicationSerializer()
 
     class Meta:
         model = Principal
-        fields = ['id', 'created_at', 'updated_at', 'workspace_user']
+        fields = ['id', 'workspace_user', 'application']
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:

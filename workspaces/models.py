@@ -22,7 +22,7 @@ def dummy_async_task():
 
 class Workspace(BaseModel):
     name = models.CharField(max_length=200)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
 
     def create_schedule(self, *args, **kwargs):
         workspace = self
@@ -33,6 +33,12 @@ class Workspace(BaseModel):
 #        logger.info('schedule = %s', schedule)
         WorkspaceSchedule.objects.create(workspace=workspace, schedule=schedule)
 
+
+class Application(BaseModel):
+    name = models.CharField(max_length=200)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    class Meta:
+        ordering = ['id']
 
 class WorkspaceSchedule(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
@@ -56,6 +62,7 @@ class WorkspaceUser(BaseModel):
 
 class Principal(BaseModel):
     workspace_user = models.ForeignKey(WorkspaceUser, on_delete=models.CASCADE)
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['workspace_user']

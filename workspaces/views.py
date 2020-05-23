@@ -15,11 +15,11 @@ from workspaces.auth import AuthUtils
 
 from .filters import CommentFilter, WorkspaceUserFilter
 from .jwt import JWTUtils
-from .models import Comment, Principal, Tag, Workspace, WorkspaceUser, WorkspaceSchedule
+from .models import (Comment, Principal, Tag, Workspace, WorkspaceUser, WorkspaceSchedule, Application,
+                    Attachment)
 from .serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
                           WorkspaceUserSerializer, AttachmentSerializer, WorkspaceScheduleSerializer)
-from workspaces.models import Attachment
 from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
@@ -48,11 +48,13 @@ class BasicAuthSigninView(APIView):
         """
         email = request.data.get('email', None)
         password = request.data.get('password', None)
+        app_name = request.data.get('app_name', 'webapp')
         user = authenticate(username=email, password=password)
         if user is None:
             raise AuthenticationFailed()
+        application = Application.objects.get(name=app_name)
         workspace_user = WorkspaceUser.objects.filter(user=user).order_by('-created_at').all()[0]
-        (principal, created) = Principal.objects.get_or_create(workspace_user=workspace_user)
+        (principal, created) = Principal.objects.get_or_create(workspace_user=workspace_user, application=application)
         refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
