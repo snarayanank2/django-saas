@@ -37,7 +37,6 @@ class Workspace(BaseModel):
 #        logger.info('schedule = %s', schedule)
         WorkspaceSchedule.objects.create(workspace=workspace, schedule=schedule)
 
-
 class WorkspaceSchedule(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, related_name='+')
@@ -49,6 +48,23 @@ class WorkspaceSchedule(BaseModel):
     def tasks(self):
         return Task.objects.filter(group=self.schedule.id)
 
+class Permission(BaseModel):
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+    path_regex = models.CharField(max_length=200)
+    read = models.BooleanField()
+    write = models.BooleanField()
+    class Meta:
+        ordering = ['id']
+
+class Role(BaseModel):
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+    name = models.CharField(max_length=200)
+    permissions = models.ManyToManyField(Permission)    
+    class Meta:
+        ordering = ['id']
+        constraints = [
+            models.UniqueConstraint(fields= ['workspace','name'], name='unique_workspace_role')
+        ]
 
 class WorkspaceUser(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
@@ -59,6 +75,7 @@ class WorkspaceUser(BaseModel):
         constraints = [
             models.UniqueConstraint(fields= ['workspace','user'], name='unique_workspace_user')
         ]
+
 
 class Principal(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')

@@ -16,12 +16,12 @@ from workspaces.auth import AuthUtils
 from .filters import CommentFilter, WorkspaceUserFilter
 from .jwt import JWTUtils
 from .models import (Comment, Principal, Tag, Workspace, WorkspaceUser, WorkspaceSchedule, ClientApplication,
-                    Attachment)
+                    Attachment, Permission, Role)
 from django_q.models import Schedule
 from .serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
                           WorkspaceUserSerializer, AttachmentSerializer, ScheduleSerializer,
-                          ClientApplicationSerializer)
+                          ClientApplicationSerializer, PermissionSerializer, RoleSerializer)
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password
 
@@ -172,6 +172,16 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
             raise PermissionDenied()
         instance.delete()
 
+
+class PermissionViewSet(WorkspaceModelViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    ordering = 'created_at'
+
+class RoleViewSet(WorkspaceModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    ordering = 'created_at'
 
 class TagViewSet(WorkspaceModelViewSet):
     queryset = Tag.objects.all()
