@@ -101,8 +101,11 @@ class RefreshTokenView(APIView):
         """
         Should return access_token
         """
-        
-        access_token = JWTUtils.get_access_token(principal_id=AuthUtils.get_current_principal_id())
+        claim = JWTUtils.get_claim_from_token(token=request.data.get('refresh_token', None))
+        if not claim:
+            raise PermissionDenied()
+        principal_id = claim['principal_id']
+        access_token = JWTUtils.get_access_token(principal_id=principal_id)
         return Response({ 'access_token' : access_token })
 
 class ClientApplicationViewSet(viewsets.ReadOnlyModelViewSet):

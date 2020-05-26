@@ -55,8 +55,8 @@ class JWTUtils:
             decoded = jwt.decode(token, cls.secret_key, algorithms='HS256')
             claim = decoded['claim']
             return claim
-        except ExpiredSignatureError as e:
-            logger.error('expired token')
+        except Exception as e:
+            logger.error('unable to extract claim')
             return None
 
 
