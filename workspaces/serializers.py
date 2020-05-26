@@ -11,9 +11,10 @@ from rest_framework.relations import PrimaryKeyRelatedField
 logger = logging.getLogger(__name__)
 
 class UserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'username']
+        fields = ['id', 'email', 'first_name', 'last_name', 'username']
 
 class WorkspaceSerializer(serializers.ModelSerializer):
     class Meta:

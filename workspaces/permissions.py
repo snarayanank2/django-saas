@@ -42,9 +42,7 @@ class Permission(BasePermission):
         if re.search(self.always_allowed_regex, path):
             return True
 
-        principal = AuthUtils.get_current_principal()
-        logger.info('has_permission called for principal %s', principal)
-        role = principal.account.role
+        role = AuthUtils.get_current_role()
         return self.is_allowed(role, path, method)
 
     def has_object_permission(self, request, view, obj):

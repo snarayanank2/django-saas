@@ -31,15 +31,6 @@ class AuthMiddleware:
         # the view is called.
         return response
     
-    def process_view(self, request, view_func, view_args, view_kwargs):
-        # Logic executed before a call to view
-        # Gives access to the view itself & arguments
-#        logger.info('about to call view %s at path %s with principal %s', view_func, request.path, request.principal)
-        if 'basic/signin' not in request.path and AuthUtils.get_current_principal() is None:
-            # all other calls, you better have a valid principal attached
-            return HttpResponseForbidden('{"message": "missing or invalid token"}', content_type='application/json')
-        pass
-
     def process_exception(self, request, exception):
         # Logic executed if an exception/error occurs in the view
         pass

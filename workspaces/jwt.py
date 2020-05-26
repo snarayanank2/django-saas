@@ -31,17 +31,17 @@ class JWTUtils:
         principal = Principal.objects.get(id=principal_id)
         principal_data = PrincipalSerializer(instance=principal).data
         payload = {
-            'principal_id': principal_id,
+            'principal': principal_data,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=exp_seconds)
         }
         encoded = jwt.encode(payload, cls.secret_key, algorithm='HS256')
         return encoded
 
     @classmethod
-    def __get_principal_from_common_token(cls, token):
+    def get_principal_from_refresh_token(cls, refresh_token):
         decoded = None
         try:
-            decoded = jwt.decode(token, cls.secret_key, algorithms='HS256')
+            decoded = jwt.decode(refresh_token, cls.secret_key, algorithms='HS256')
             principal_id = decoded['principal_id']
             principal = Principal.objects.get(id=principal_id)
             return principal
@@ -49,12 +49,14 @@ class JWTUtils:
             logger.error('expired token')
             return None
 
-
-    @classmethod
-    def get_principal_from_refresh_token(cls, refresh_token):
-        return cls.__get_principal_from_common_token(token=refresh_token)
-
     @classmethod
     def get_principal_from_access_token(cls, access_token):
-        return cls.__get_principal_from_common_token(token=access_token)
+        decoded = None
+        try:
+            decoded = jwt.decode(access_token, cls.secret_key, algorithms='HS256')
+            principal = decoded['principal']
+            return principal
+        except ExpiredSignatureError as e:
+            logger.error('expired token')
+            return None
 
