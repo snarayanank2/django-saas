@@ -8,43 +8,37 @@ class AuthUtils:
 
     # these utility functions are used by models to automatically determine principal
     @classmethod
-    def set_current_principal(cls, principal):
-        assert isinstance(principal, dict)
-        cls._storage.principal = principal
-
-    # @classmethod
-    # def get_current_principal(cls):
-    #     if (hasattr(cls._storage, 'principal')):
-    #         return cls._storage.principal
-    #     return None
+    def set_current_claim(cls, claim):
+        assert isinstance(claim, dict)
+        cls._storage.claim = claim
 
     @classmethod
     def get_current_principal_id(cls):
-        assert hasattr(cls._storage, 'principal')
-        return cls._storage.principal['id']
+        assert hasattr(cls._storage, 'claim')
+        return cls._storage.claim['principal_id']
 
     @classmethod
     def get_current_account_id(cls):
-        assert hasattr(cls._storage, 'principal')
-        return cls._storage.principal['account']['id']
+        assert hasattr(cls._storage, 'claim')
+        return cls._storage.claim['account_id']
 
     @classmethod
     def get_current_workspace_id(cls):
-        assert hasattr(cls._storage, 'principal')
-        return cls._storage.principal['account']['workspace']['id']
+        assert hasattr(cls._storage, 'claim')
+        return cls._storage.claim['workspace_id']
 
     @classmethod
     def get_current_user_id(cls):
-        assert hasattr(cls._storage, 'principal')
-        return cls._storage.principal['account']['user']['id']
+        assert hasattr(cls._storage, 'claim')
+        return cls._storage.claim['user_id']
 
     @classmethod
     def get_current_role(cls):
-        assert hasattr(cls._storage, 'principal')
-        return cls._storage.principal['account']['role']
+        assert hasattr(cls._storage, 'claim')
+        return cls._storage.claim['role']
 
     @classmethod
     def get_current_client_application_id(cls):
-        assert hasattr(cls._storage, 'principal')
-        return cls._storage.principal['client_application']['id']
+        assert hasattr(cls._storage, 'claim')
+        return cls._storage.claim['client_application_id']
 

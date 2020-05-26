@@ -20,10 +20,8 @@ class AuthMiddleware:
 
         if 'HTTP_AUTHORIZATION' in request.META and len(request.META['HTTP_AUTHORIZATION']) > 7:
             access_token = request.META['HTTP_AUTHORIZATION'][7:]
-            # TODO: only save principal_id and retrieve the principal elsewhere or figure out something
-            # better
-            principal = JWTUtils.get_principal_from_access_token(access_token=access_token)
-            AuthUtils.set_current_principal(principal=principal)
+            claim = JWTUtils.get_claim_from_token(token=access_token)
+            AuthUtils.set_current_claim(claim=claim)
 
         response = self.get_response(request)
 
