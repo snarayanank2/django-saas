@@ -48,18 +48,18 @@ class WorkspaceSchedule(BaseModel):
     def tasks(self):
         return Task.objects.filter(group=self.schedule.id)
 
-class WorkspaceUser(BaseModel):
+class Account(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     role = models.CharField(max_length=200)
     class Meta:
         ordering = ['created_at']
         constraints = [
-            models.UniqueConstraint(fields= ['workspace','user'], name='unique_workspace_user')
+            models.UniqueConstraint(fields= ['workspace','user'], name='unique_account')
         ]
 
 class Principal(BaseModel):
-    workspace_user = models.ForeignKey(WorkspaceUser, on_delete=models.CASCADE, related_name='+')
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='+')
     client_application = models.ForeignKey(ClientApplication, on_delete=models.CASCADE, related_name='+')
     class Meta:
         ordering = ['created_at']

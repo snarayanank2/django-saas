@@ -13,7 +13,12 @@ class Permission(BasePermission):
             'path_regex' : '.*',
             'read' : True,
             'write' : True
-        }]
+        }], 
+        'auditor': [{
+            'path_regex' : '.*',
+            'read' : True,
+            'write' : False
+            }]
     }
     always_allowed_regex = '/basic/signin'
 
@@ -39,7 +44,7 @@ class Permission(BasePermission):
 
         principal = AuthUtils.get_current_principal()
         logger.info('has_permission called for principal %s', principal)
-        role = principal.workspace_user.role
+        role = principal.account.role
         return self.is_allowed(role, path, method)
 
     def has_object_permission(self, request, view, obj):

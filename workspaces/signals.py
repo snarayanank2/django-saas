@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from .models import Workspace, WorkspaceUser, Principal
+from .models import Workspace, Account, Principal
 # import the logging library
 import logging
 
@@ -13,5 +13,5 @@ def user_save(sender, instance, created, **kwargs):
     # if created:
     #     w = Workspace(name='Default', owner=instance)
     #     w.save()
-    #     wu = WorkspaceUser(workspace=w, user=instance)
+    #     wu = Account(workspace=w, user=instance, role='admin')
     #     wu.save()

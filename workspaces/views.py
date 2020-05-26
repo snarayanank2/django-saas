@@ -13,14 +13,14 @@ from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from workspaces.auth import AuthUtils
 
-from .filters import CommentFilter, WorkspaceUserFilter
+from .filters import CommentFilter, AccountFilter
 from .jwt import JWTUtils
-from .models import (Comment, Principal, Tag, Workspace, WorkspaceUser, WorkspaceSchedule, ClientApplication,
+from .models import (Comment, Principal, Tag, Workspace, Account, WorkspaceSchedule, ClientApplication,
                     Attachment)
 from django_q.models import Schedule
 from .serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
-                          WorkspaceUserSerializer, AttachmentSerializer, ScheduleSerializer,
+                          AccountSerializer, AttachmentSerializer, ScheduleSerializer,
                           ClientApplicationSerializer)
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password
@@ -35,22 +35,22 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
         logger.info('hooking into get_queryset')
         principal = AuthUtils.get_current_principal()
         return Workspace.objects.filter(
-                Exists(WorkspaceUser.objects.filter(workspace=OuterRef('pk'), user=principal.workspace_user.user))
+                Exists(Account.objects.filter(workspace=OuterRef('pk'), user=principal.account.user))
             ).order_by('-created_at')
 
     def create(self, request):
         res = super().create(request)
         workspace = Workspace.objects.get(pk=res.data['id'])
         principal = AuthUtils.get_current_principal()
-        workspace_user = WorkspaceUser.objects.create(workspace=workspace, user=principal.workspace_user.user, role='admin')
+        account = Account.objects.create(workspace=workspace, user=principal.account.user, role='admin')
         return res
 
     @action(detail=True, methods=['post'])
     def auth(self, request, pk=None):
         principal = AuthUtils.get_current_principal()
         workspace = self.get_object()
-        workspace_user = WorkspaceUser.objects.get(workspace=workspace, user=principal.workspace_user.user)
-        (principal, created) = Principal.objects.get_or_create(workspace_user=workspace_user, client_application=principal.client_application)
+        account = Account.objects.get(workspace=workspace, user=principal.account.user)
+        (principal, created) = Principal.objects.get_or_create(account=account, client_application=principal.client_application)
         refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
@@ -62,7 +62,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 #     def get_queryset(self):
 #         principal = AuthUtils.get_current_principal()
 #         return User.objects.filter(
-#                 Exists(WorkspaceUser.objects.filter(user=OuterRef('pk'), workspace=principal.workspace))
+#                 Exists(Account.objects.filter(user=OuterRef('pk'), workspace=principal.workspace))
 #             ).order_by('-username')
 
 class BasicAuthSigninView(APIView):
@@ -77,9 +77,9 @@ class BasicAuthSigninView(APIView):
             raise AuthenticationFailed()
         app_name = request.data.get('app_name', 'webapp')
         client_application = ClientApplication.objects.get(name=app_name)
-        workspace_user = WorkspaceUser.objects.filter(user=user).order_by('-created_at').all()[0]
+        account = Account.objects.filter(user=user).order_by('-created_at').all()[0]
         # log into the oldest workspace by default
-        (principal, created) = Principal.objects.get_or_create(workspace_user=workspace_user, client_application=client_application)
+        (principal, created) = Principal.objects.get_or_create(account=account, client_application=client_application)
         refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
@@ -99,8 +99,8 @@ class BasicAuthSignupView(APIView):
         app_name = request.data.get('app_name', 'webapp')
         client_application = ClientApplication.objects.get(name=app_name)
         workspace = Workspace.objects.create(name='Default')
-        workspace_user = WorkspaceUser.objects.create(user=user, workspace=workspace, role='admin')
-        (principal, created) = Principal.objects.get_or_create(workspace=workspace_user.workspace, user=workspace_user.user, client_application=client_application)
+        account = Account.objects.create(user=user, workspace=workspace, role='admin')
+        (principal, created) = Principal.objects.get_or_create(workspace=account.workspace, user=account.user, client_application=client_application)
         refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
@@ -129,7 +129,7 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         principal = AuthUtils.get_current_principal()
         return Schedule.objects.filter(
-            Exists(WorkspaceSchedule.objects.filter(schedule=OuterRef('pk'), workspace=principal.workspace_user.workspace))
+            Exists(WorkspaceSchedule.objects.filter(schedule=OuterRef('pk'), workspace=principal.account.workspace))
         ).order_by('id')
 
 
@@ -140,20 +140,20 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         logger.info('hooking into get_queryset')
         principal = AuthUtils.get_current_principal()
-        return super().get_queryset().filter(workspace=principal.workspace_user.workspace).order_by('-created_at')
+        return super().get_queryset().filter(workspace=principal.account.workspace).order_by('-created_at')
 
     def get_object(self):
         logger.info('hooking into get_object')
         principal = AuthUtils.get_current_principal()
         obj = super().get_object()
-        if obj.workspace != principal.workspace_user.workspace:
+        if obj.workspace != principal.account.workspace:
             raise PermissionDenied()
         return obj
 
     def perform_update(self, serializer):
         logger.info('hooking into update')
         principal = AuthUtils.get_current_principal()
-        if serializer.instance.workspace != principal.workspace_user.workspace:
+        if serializer.instance.workspace != principal.account.workspace:
             raise PermissionDenied()
         updated_by = principal
         serializer.save(updated_by=updated_by)
@@ -163,7 +163,7 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
         principal = AuthUtils.get_current_principal()
         created_by = principal
         updated_by = principal
-        workspace = principal.workspace_user.workspace
+        workspace = principal.account.workspace
         serializer.save(created_by=created_by, updated_by=updated_by, workspace=workspace)
 
     def perform_destroy(self, instance):
@@ -174,16 +174,16 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-class WorkspaceUserViewSet(WorkspaceModelViewSet):
-    queryset = WorkspaceUser.objects.all()
-    serializer_class = WorkspaceUserSerializer
+class AccountViewSet(WorkspaceModelViewSet):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
     ordering = 'created_at'
 
     @action(detail=False, methods=['get'])
     def me(self, request):
         principal = AuthUtils.get_current_principal()
-        workspace_user = principal.workspace_user
-        wus = WorkspaceUserSerializer(instance=workspace_user)
+        account = principal.account
+        wus = AccountSerializer(instance=account)
         return Response(wus.data)
 
 class TagViewSet(WorkspaceModelViewSet):
@@ -200,7 +200,7 @@ class AttachmentUploadView(APIView):
         principal = AuthUtils.get_current_principal()
         created_by = principal
         updated_by = principal
-        workspace = principal.workspace_user.workspace
+        workspace = principal.account.workspace
         attachment_serializer = AttachmentSerializer(data=request.data)
         attachment_serializer.is_valid(raise_exception=True)
         attachment = attachment_serializer.save(created_by=created_by, updated_by=updated_by, workspace=workspace)
@@ -214,7 +214,7 @@ class AttachmentDownloadView(APIView):
         # logger.info('request.pk %s', pk)
         principal = AuthUtils.get_current_principal()
         attachment = Attachment.objects.get(pk=pk)
-        if attachment.workspace != principal.workspace_user.workspace:
+        if attachment.workspace != principal.account.workspace:
             raise PermissionDenied()
         out = attachment.file.open(mode='rb')
         response = HttpResponse(out.read(), content_type=f'{attachment.content_type}')

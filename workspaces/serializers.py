@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from .models import (Attachment, Comment, Principal, Tag, Workspace,
-                     WorkspaceUser, WorkspaceSchedule, ClientApplication)
+                     Account, WorkspaceSchedule, ClientApplication)
 from django_q.models import Schedule, Task
 from rest_framework.relations import PrimaryKeyRelatedField
 
@@ -25,21 +25,21 @@ class ClientApplicationSerializer(serializers.ModelSerializer):
         model = ClientApplication
         fields = ['id', 'name']
 
-class WorkspaceUserSerializer(serializers.ModelSerializer):
+class AccountSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     workspace = WorkspaceSerializer()
 
     class Meta:
-        model = WorkspaceUser
+        model = Account
         fields = ['id', 'workspace', 'user', 'role']
 
 class PrincipalSerializer(serializers.ModelSerializer):
-    workspace_user = WorkspaceUserSerializer(read_only=True)
+    account = AccountSerializer(read_only=True)
     client_application = ClientApplicationSerializer(read_only=True)
 
     class Meta:
         model = Principal
-        fields = ['id', 'workspace_user', 'client_application']
+        fields = ['id', 'account', 'client_application']
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:

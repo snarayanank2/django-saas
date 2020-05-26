@@ -1,8 +1,8 @@
 from django.conf import settings
 import logging
 import jwt
-from .models import Principal, WorkspaceUser
-from .serializers import UserSerializer, WorkspaceUserSerializer, WorkspaceSerializer, PrincipalSerializer
+from .models import Principal, Account
+from .serializers import UserSerializer, AccountSerializer, WorkspaceSerializer, PrincipalSerializer
 import datetime
 from django.core import serializers
 import threading
