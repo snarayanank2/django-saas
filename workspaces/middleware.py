@@ -35,7 +35,7 @@ class AuthMiddleware:
         # Logic executed before a call to view
         # Gives access to the view itself & arguments
 #        logger.info('about to call view %s at path %s with principal %s', view_func, request.path, request.principal)
-        if 'auth/basic' not in request.path and AuthUtils.get_current_principal() is None:
+        if 'basic/signin' not in request.path and AuthUtils.get_current_principal() is None:
             # all other calls, you better have a valid principal attached
             return HttpResponseForbidden('{"message": "missing or invalid token"}', content_type='application/json')
         pass

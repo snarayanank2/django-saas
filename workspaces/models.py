@@ -48,40 +48,19 @@ class WorkspaceSchedule(BaseModel):
     def tasks(self):
         return Task.objects.filter(group=self.schedule.id)
 
-class Permission(BaseModel):
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
-    path_regex = models.CharField(max_length=200)
-    read = models.BooleanField()
-    write = models.BooleanField()
-    class Meta:
-        ordering = ['id']
-
-class Role(BaseModel):
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
-    name = models.CharField(max_length=200)
-    permissions = models.ManyToManyField(Permission)    
-    class Meta:
-        ordering = ['id']
-        constraints = [
-            models.UniqueConstraint(fields= ['workspace','name'], name='unique_workspace_role')
-        ]
-
 class WorkspaceUser(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
-
+    role = models.CharField(max_length=200)
     class Meta:
-        ordering = ['workspace']
+        ordering = ['created_at']
         constraints = [
             models.UniqueConstraint(fields= ['workspace','user'], name='unique_workspace_user')
         ]
 
-
 class Principal(BaseModel):
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    workspace_user = models.ForeignKey(WorkspaceUser, on_delete=models.CASCADE, related_name='+')
     client_application = models.ForeignKey(ClientApplication, on_delete=models.CASCADE, related_name='+')
-
     class Meta:
         ordering = ['created_at']
 

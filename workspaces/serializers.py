@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from .models import (Attachment, Comment, Principal, Tag, Workspace,
-                     WorkspaceUser, WorkspaceSchedule, Permission, Role, ClientApplication)
+                     WorkspaceUser, WorkspaceSchedule, ClientApplication)
 from django_q.models import Schedule, Task
 from rest_framework.relations import PrimaryKeyRelatedField
 
@@ -31,16 +31,15 @@ class WorkspaceUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorkspaceUser
-        fields = ['id', 'workspace', 'user']
+        fields = ['id', 'workspace', 'user', 'role']
 
 class PrincipalSerializer(serializers.ModelSerializer):
-    workspace = WorkspaceSerializer()
-    user = UserSerializer()
-    client_application = ClientApplicationSerializer()
+    workspace_user = WorkspaceUserSerializer(read_only=True)
+    client_application = ClientApplicationSerializer(read_only=True)
 
     class Meta:
         model = Principal
-        fields = ['id', 'workspace', 'user', 'client_application']
+        fields = ['id', 'workspace_user', 'client_application']
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,18 +54,6 @@ class WorkspaceScheduleSerializer(serializers.ModelSerializer):
         model = WorkspaceSchedule
         fields = ['created_at', 'id', 'workspace', 'schedule']
 
-class PermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permission
-        fields = ['id', 'path_regex', 'read', 'write']
-
-class RoleSerializer(serializers.ModelSerializer):
-    permissions = PermissionSerializer(many=True, read_only=True)
-    permission_ids = PrimaryKeyRelatedField(queryset=Permission.objects.all(), many=True, write_only=True, source='permissions')
-
-    class Meta:
-        model = Role
-        fields = ['id', 'name', 'permissions']
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
