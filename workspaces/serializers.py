@@ -32,7 +32,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['id', 'workspace', 'user', 'role']
+        fields = ['id', 'workspace', 'user', 'roles']
 
 class PrincipalSerializer(serializers.ModelSerializer):
     account = AccountSerializer(read_only=True)

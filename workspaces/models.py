@@ -51,7 +51,8 @@ class WorkspaceSchedule(BaseModel):
 class Account(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
-    role = models.CharField(max_length=200)
+    roles = models.CharField(max_length=200)
+
     class Meta:
         ordering = ['created_at']
         constraints = [

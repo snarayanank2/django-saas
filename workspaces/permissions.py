@@ -42,8 +42,12 @@ class Permission(BasePermission):
         if re.search(self.always_allowed_regex, path):
             return True
 
-        role = AuthUtils.get_current_role()
-        return self.is_allowed(role, path, method)
+        roles = AuthUtils.get_current_roles()
+        for role in roles.split(','):
+            if self.is_allowed(role, path, method):
+                return True
+
+        return false
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request=request, view=view)

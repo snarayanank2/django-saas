@@ -94,13 +94,6 @@ class AccountViewSet(WorkspaceModelViewSet):
     serializer_class = AccountSerializer
     ordering = 'created_at'
 
-    @action(detail=False, methods=['get'])
-    def me(self, request):
-        
-        account = Account.objects.get(id=AuthUtils.get_current_account_id())
-        wus = AccountSerializer(instance=account)
-        return Response(wus.data)
-
 class TagViewSet(WorkspaceModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer

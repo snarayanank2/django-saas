@@ -35,7 +35,7 @@ class JWTUtils:
             'workspace_id': principal.account.workspace.id,
             'user_id': principal.account.user.id,
             'client_application_id': principal.client_application.id,
-            'role': principal.account.role
+            'roles': principal.account.roles
         }
         return cls.get_token_from_claim(claim=claim, exp_seconds=exp_seconds)
 

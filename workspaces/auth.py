@@ -33,9 +33,9 @@ class AuthUtils:
         return cls._storage.claim['user_id']
 
     @classmethod
-    def get_current_role(cls):
+    def get_current_roles(cls):
         assert hasattr(cls._storage, 'claim')
-        return cls._storage.claim['role']
+        return cls._storage.claim['roles']
 
     @classmethod
     def get_current_client_application_id(cls):

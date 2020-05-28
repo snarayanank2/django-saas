@@ -61,7 +61,7 @@ class BasicAuthSignupView(APIView):
         app_name = request.data.get('app_name', 'webapp')
         client_application = ClientApplication.objects.get(name=app_name)
         workspace = Workspace.objects.create(name='Default')
-        account = Account.objects.create(user=user, workspace=workspace, role='admin')
+        account = Account.objects.create(user=user, workspace=workspace, roles='admin')
         (principal, created) = Principal.objects.get_or_create(workspace=account.workspace, user=account.user, client_application=client_application)
         refresh_token = JWTUtils.get_refresh_token(principal_id=AuthUtils.get_current_principal_id())
         access_token = JWTUtils.get_access_token(principal_id=AuthUtils.get_current_principal_id())
@@ -94,7 +94,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
         res = super().create(request)
         workspace = Workspace.objects.get(id=res.data['id'])
         
-        account = Account.objects.create(workspace=workspace, user=User.objects.get(id=AuthUtils.get_current_user_id()), role='admin')
+        account = Account.objects.create(workspace=workspace, user=User.objects.get(id=AuthUtils.get_current_user_id()), roles='admin')
         return res
 
     @action(detail=True, methods=['post'])
@@ -106,3 +106,17 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
         refresh_token = JWTUtils.get_refresh_token(principal_id=AuthUtils.get_current_principal_id())
         access_token = JWTUtils.get_access_token(principal_id=AuthUtils.get_current_principal_id())
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
+
+class AccountViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
+    ordering = 'created_at'
+
+    def get_queryset(self):
+        return Account.objects.filter(user=User.objects.get(id=AuthUtils.get_current_user_id())).order_by('-created_at')
+
+    @action(detail=False, methods=['get'])
+    def me(self, request):        
+        account = Account.objects.get(id=AuthUtils.get_current_account_id())
+        wus = AccountSerializer(instance=account)
+        return Response(wus.data)
