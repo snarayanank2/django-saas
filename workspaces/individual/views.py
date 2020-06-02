@@ -99,7 +99,6 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def auth(self, request, pk=None):
-        
         workspace = self.get_object()
         account = Account.objects.get(workspace=workspace, user=User.objects.get(id=AuthUtils.get_current_user_id()))
         (principal, created) = Principal.objects.get_or_create(account=account, client_application=ClientApplication.objects.get(id=AuthUtils.get_current_client_application_id()))

@@ -54,40 +54,7 @@ class WorkspaceModelViewSet(viewsets.ModelViewSet):
     # and automatically filter out results that are only relevant to current workspace
     def get_queryset(self):
         logger.info('hooking into get_queryset')
-        
         return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')
-
-    def get_object(self):
-        logger.info('hooking into get_object')
-        
-        obj = super().get_object()
-        if obj.workspace != Workspace.objects.get(id=AuthUtils.get_current_workspace_id()):
-            raise PermissionDenied()
-        return obj
-
-    def perform_update(self, serializer):
-        logger.info('hooking into update')
-        principal = Principal.objects.get(id=AuthUtils.get_current_principal_id())        
-        if serializer.instance.workspace != principal.account.workspace:
-            raise PermissionDenied()
-        updated_by = principal
-        serializer.save(updated_by=updated_by)
-
-    def perform_create(self, serializer):
-        logger.info('hooking into create')
-        principal = Principal.objects.get(id=AuthUtils.get_current_principal_id())
-        created_by = principal
-        updated_by = principal
-        workspace = principal.account.workspace
-        serializer.save(created_by=created_by, updated_by=updated_by, workspace=workspace)
-
-    def perform_destroy(self, instance):
-        logger.info('hooking into delete')
-        principal = Principal.objects.get(id=AuthUtils.get_current_principal_id())        
-        if instance.created_by != principal:
-            raise PermissionDenied()
-        instance.delete()
-
 
 class AccountViewSet(WorkspaceModelViewSet):
     queryset = Account.objects.all()

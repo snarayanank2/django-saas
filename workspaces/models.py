@@ -69,8 +69,20 @@ class Principal(BaseModel):
 
 class WorkspaceBaseModel(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
-    created_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+')
-    updated_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+')
+    created_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+', null=True)
+    updated_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+', null=True)
+
+    def save(self, *args, **kwargs):
+        principal = Principal.objects.get(id=AuthUtils.get_current_principal_id())
+        if not principal:
+            logger.warning('unknown principal making changes')
+        if self._state.adding:
+#            logger.info('hooking into created_by')
+            self.created_by = principal
+            self.workspace = principal.account.workspace
+#        logger.info('hooking into updated by')
+        self.updated_by = principal
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
