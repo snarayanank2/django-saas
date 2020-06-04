@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 import logging
-from .auth import AuthUtils
+from workspaces.auth_utils import AuthUtils
 import inspect
 import json
 import re

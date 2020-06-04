@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django_q.models import Schedule, Task
-from .auth import AuthUtils
+from workspaces.auth_utils import AuthUtils
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,6 @@ class Workspace(BaseModel):
         if 'repeats' not in kwargs_copy:
             kwargs_copy['repeats'] = 1
         schedule = Schedule.objects.create(*args, **kwargs_copy)
-#        logger.info('schedule = %s', schedule)
         WorkspaceSchedule.objects.create(workspace=workspace, schedule=schedule)
 
 class WorkspaceSchedule(BaseModel):
@@ -62,6 +61,7 @@ class Account(BaseModel):
 class Principal(BaseModel):
     account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='+')
     client_application = models.ForeignKey(ClientApplication, on_delete=models.CASCADE, related_name='+')
+    roles = models.CharField(max_length=200)
     class Meta:
         ordering = ['created_at']
 
@@ -69,19 +69,13 @@ class Principal(BaseModel):
 
 class WorkspaceBaseModel(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
-    created_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+', null=True)
-    updated_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+', null=True)
 
     def save(self, *args, **kwargs):
         principal = Principal.objects.get(id=AuthUtils.get_current_principal_id())
         if not principal:
             logger.warning('unknown principal making changes')
-        if self._state.adding:
-#            logger.info('hooking into created_by')
-            self.created_by = principal
+        if principal and self._state.adding:
             self.workspace = principal.account.workspace
-#        logger.info('hooking into updated by')
-        self.updated_by = principal
         super().save(*args, **kwargs)
 
     class Meta:
@@ -89,6 +83,9 @@ class WorkspaceBaseModel(BaseModel):
 
 class Tag(WorkspaceBaseModel):
     name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
 
 class Attachment(WorkspaceBaseModel):
     file = models.FileField(blank=False, null=False)
@@ -103,3 +100,6 @@ class Comment(WorkspaceBaseModel):
     message = models.CharField(max_length=1024)
     tags = models.ManyToManyField(Tag)
     attachments = models.ManyToManyField(Attachment)
+
+    def __str__(self):
+        return self.id

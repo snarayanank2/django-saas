@@ -35,43 +35,36 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'workspace', 'user', 'roles']
 
 class PrincipalSerializer(serializers.ModelSerializer):
-    account = AccountSerializer(read_only=True)
-    client_application = ClientApplicationSerializer(read_only=True)
+    account = AccountSerializer()
+    client_application = ClientApplicationSerializer()
 
     class Meta:
         model = Principal
-        fields = ['id', 'account', 'client_application']
+        fields = ['id', 'account', 'client_application', 'roles']
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = ['id', 'name', 'func', 'args', 'kwargs', 'schedule_type', 'repeats', 'next_run']
 
-class WorkspaceScheduleSerializer(serializers.ModelSerializer):
-    workspace = WorkspaceSerializer()
-    schedule = ScheduleSerializer()
-
-    class Meta:
-        model = WorkspaceSchedule
-        fields = ['created_at', 'id', 'workspace', 'schedule']
-
-
 class TagSerializer(serializers.ModelSerializer):
+    workspace_id = PrimaryKeyRelatedField(queryset=Workspace.objects.all(), source='workspace', allow_null=True)
     class Meta:
         model = Tag
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'workspace_id']
 
 class AttachmentSerializer(serializers.ModelSerializer):
+    workspace_id = PrimaryKeyRelatedField(queryset=Workspace.objects.all(), source='workspace', allow_null=True)
     class Meta:
         model = Attachment
-        fields = ['id', 'file', 'content_type', 'filename']
+        fields = ['id', 'file', 'content_type', 'filename', 'workspace_id']
 
 class CommentSerializer(serializers.ModelSerializer):
-    created_by = PrincipalSerializer(read_only=True)
+    workspace_id = PrimaryKeyRelatedField(queryset=Workspace.objects.all(), source='workspace', allow_null=True)
     tag_ids = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, write_only=True, source='tags')
     tags = TagSerializer(many=True, read_only=True)
     attachment_ids = PrimaryKeyRelatedField(queryset=Attachment.objects.all(), many=True, source='attachments')
 
     class Meta:
         model = Comment
-        fields = ['id', 'message', 'created_at', 'created_by', 'tag_ids', 'tags', 'attachment_ids']
+        fields = ['id', 'message', 'created_at', 'tag_ids', 'tags', 'attachment_ids', 'workspace_id']

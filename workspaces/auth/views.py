@@ -1,34 +1,36 @@
 import logging
 
 from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
+from django.http import HttpResponse
 from django.http.response import HttpResponseForbidden
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework import authentication, filters, permissions, status, viewsets
+from django_q.models import Schedule
+from rest_framework import (authentication, filters, permissions, status,
+                            viewsets)
 from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
+from rest_framework.parsers import FileUploadParser
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.parsers import FileUploadParser
-from workspaces.auth import AuthUtils
-
-from workspaces.filters import CommentFilter, AccountFilter
+from workspaces.auth_utils import AuthUtils
+from workspaces.crud.filters import AccountFilter, CommentFilter
 from workspaces.jwt import JWTUtils
-from workspaces.models import (Comment, Principal, Tag, Workspace, Account, WorkspaceSchedule, ClientApplication,
-                    Attachment)
-from django_q.models import Schedule
-from workspaces.serializers import (CommentSerializer, PrincipalSerializer,
-                          TagSerializer, UserSerializer, WorkspaceSerializer,
-                          AccountSerializer, AttachmentSerializer, ScheduleSerializer,
-                          ClientApplicationSerializer)
-from django.http import HttpResponse
-from django.contrib.auth.hashers import make_password
-from rest_framework.renderers import JSONRenderer
+from workspaces.crud.models import (Account, Attachment, ClientApplication, Comment,
+                               Principal, Tag, Workspace, WorkspaceSchedule)
+from workspaces.crud.serializers import (AccountSerializer, AttachmentSerializer,
+                                    ClientApplicationSerializer,
+                                    CommentSerializer, PrincipalSerializer,
+                                    ScheduleSerializer, TagSerializer,
+                                    UserSerializer, WorkspaceSerializer)
+
 logger = logging.getLogger(__name__)
 
 class BasicAuthSigninView(APIView):
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Should return access_token, refresh_token
         """
@@ -41,13 +43,13 @@ class BasicAuthSigninView(APIView):
         client_application = ClientApplication.objects.get(name=app_name)
         account = Account.objects.filter(user=user).order_by('-created_at').all()[0]
         # log into the oldest workspace by default
-        (principal, created) = Principal.objects.get_or_create(account=account, client_application=client_application)
+        (principal, created) = Principal.objects.get_or_create(account=account, client_application=client_application, roles=account.roles)
         refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
 class BasicAuthSignupView(APIView):
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Should return access_token, refresh_token
         """
@@ -68,7 +70,7 @@ class BasicAuthSignupView(APIView):
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
 class RefreshTokenView(APIView):
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Should return access_token
         """
@@ -79,43 +81,15 @@ class RefreshTokenView(APIView):
         access_token = JWTUtils.get_access_token(principal_id=principal_id)
         return Response({ 'access_token' : access_token })
 
-class WorkspaceViewSet(viewsets.ModelViewSet):
-    queryset = Workspace.objects.all()
-    serializer_class = WorkspaceSerializer
-
-    def get_queryset(self):
-        logger.info('hooking into get_queryset')
-        
-        return Workspace.objects.filter(
-                Exists(Account.objects.filter(workspace=OuterRef('pk'), user=User.objects.get(id=AuthUtils.get_current_user_id())))
-            ).order_by('-created_at')
-
-    def create(self, request):
-        res = super().create(request)
-        workspace = Workspace.objects.get(id=res.data['id'])
-        
-        account = Account.objects.create(workspace=workspace, user=User.objects.get(id=AuthUtils.get_current_user_id()), roles='admin')
-        return res
-
-    @action(detail=True, methods=['post'])
-    def auth(self, request, pk=None):
-        workspace = self.get_object()
+class SwitchWorkspaceView(APIView):
+    def post(self, request):
+        user_id = AuthUtils.get_current_user_id()
+        if not user_id:
+            raise PermissionDenied()
+        workspace_id = request.data.get('id', None)
+        workspace = Workspace.objects.get(id=workspace_id)
         account = Account.objects.get(workspace=workspace, user=User.objects.get(id=AuthUtils.get_current_user_id()))
-        (principal, created) = Principal.objects.get_or_create(account=account, client_application=ClientApplication.objects.get(id=AuthUtils.get_current_client_application_id()))
-        refresh_token = JWTUtils.get_refresh_token(principal_id=AuthUtils.get_current_principal_id())
-        access_token = JWTUtils.get_access_token(principal_id=AuthUtils.get_current_principal_id())
+        (principal, created) = Principal.objects.get_or_create(account=account, client_application=ClientApplication.objects.get(id=AuthUtils.get_current_client_application_id()), roles=account.roles)
+        refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
+        access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
-
-class AccountViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Account.objects.all()
-    serializer_class = AccountSerializer
-    ordering = 'created_at'
-
-    def get_queryset(self):
-        return Account.objects.filter(user=User.objects.get(id=AuthUtils.get_current_user_id())).order_by('-created_at')
-
-    @action(detail=False, methods=['get'])
-    def me(self, request):        
-        account = Account.objects.get(id=AuthUtils.get_current_account_id())
-        wus = AccountSerializer(instance=account)
-        return Response(wus.data)

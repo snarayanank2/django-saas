@@ -1,8 +1,8 @@
 from django.conf import settings
 import logging
 import jwt
-from .models import Principal, Account
-from .serializers import UserSerializer, AccountSerializer, WorkspaceSerializer, PrincipalSerializer
+from workspaces.crud.models import Principal, Account
+from workspaces.crud.serializers import UserSerializer, AccountSerializer, WorkspaceSerializer, PrincipalSerializer
 import datetime
 from django.core import serializers
 import threading
@@ -35,7 +35,7 @@ class JWTUtils:
             'workspace_id': principal.account.workspace.id,
             'user_id': principal.account.user.id,
             'client_application_id': principal.client_application.id,
-            'roles': principal.account.roles
+            'roles': principal.roles
         }
         return cls.get_token_from_claim(claim=claim, exp_seconds=exp_seconds)
 
