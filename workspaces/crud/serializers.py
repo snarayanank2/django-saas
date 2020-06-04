@@ -50,10 +50,9 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 # Serializers for workspace objects should inherit from this
 class WorkspaceModelSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        workspace = Workspace.objects.get(id=AuthUtils.get_current_workspace_id())
-        validated_data['workspace'] = workspace
-        return super().create(validated_data)
+    workspace_id = PrimaryKeyRelatedField(queryset=Workspace.objects.all(), source='workspace')
+    class Meta:
+        abstract = True
 
 class TagSerializer(WorkspaceModelSerializer):
     class Meta:

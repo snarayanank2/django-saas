@@ -26,6 +26,7 @@ from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password
 from rest_framework.renderers import JSONRenderer
 from workspaces.crud import views as crud_views
+
 logger = logging.getLogger(__name__)
 
 class WorkspaceViewSet(crud_views.WorkspaceViewSet):
@@ -52,16 +53,27 @@ class AccountViewSet(crud_views.AccountViewSet):
         wus = AccountSerializer(instance=account)
         return Response(wus.data)
 
-class AttachmentUploadView(crud_views.AttachmentUploadView):
+class WorkspacePostMixin:
+    def create(self, request):
+        logger.info('hooking into post call')
+        request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
+        return super().create(request)
+
+class AttachmentUploadView(crud_views.AttachmentUploadView, WorkspacePostMixin):
     pass
 
 class AttachmentDownloadView(crud_views.AttachmentDownloadView):
-    pass
+    def get(self, request, pk, *args, **kwargs):
+        attachment = Attachment.objects.get(pk=pk)
+        if attachment.workspace.id != AuthUtils.get_current_workspace_id():
+            raise PermissionDenied()
+        return super().get(request, pk, *args, **kwargs)
 
-class TagViewSet(crud_views.TagViewSet):
+class TagViewSet(WorkspacePostMixin, crud_views.TagViewSet):
     def get_queryset(self):
         return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')
 
-class CommentViewSet(crud_views.CommentViewSet):
+class CommentViewSet(WorkspacePostMixin, crud_views.CommentViewSet):
     def get_queryset(self):
+        logger.info('called CommentViewSet.get()')
         return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')

@@ -69,8 +69,6 @@ class AttachmentDownloadView(APIView):
 
     def get(self, request, pk, *args, **kwargs):
         attachment = Attachment.objects.get(pk=pk)
-        if attachment.workspace.id != AuthUtils.get_current_workspace_id():
-            raise PermissionDenied()
         out = attachment.file.open(mode='rb')
         response = HttpResponse(out.read(), content_type=f'{attachment.content_type}')
         response['Content-Disposition'] = f'attachment; filename="{attachment.filename}"'
