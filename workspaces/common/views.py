@@ -53,33 +53,15 @@ class AccountViewSet(crud_views.AccountViewSet):
         return Response(wus.data)
 
 class AttachmentUploadView(crud_views.AttachmentUploadView):
-    parser_class = (FileUploadParser, )
-
-    def post(self, request, *args, **kwargs):
-        request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
-        return super().post(request, *args, **kwargs)
+    pass
 
 class AttachmentDownloadView(crud_views.AttachmentDownloadView):
-
-    def get(self, request, pk, *args, **kwargs):
-        attachment = Attachment.objects.get(pk=pk)
-        if attachment.workspace != Workspace.objects.get(id=AuthUtils.get_current_workspace_id()):
-            raise PermissionDenied()
-        return super().get(request, pk, *args, **kwargs)
+    pass
 
 class TagViewSet(crud_views.TagViewSet):
-
     def get_queryset(self):
         return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')
-
-    def create(self, request):
-        request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
-        return super().create(request)
 
 class CommentViewSet(crud_views.CommentViewSet):
     def get_queryset(self):
         return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')
-
-    def create(self, request):
-        request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
-        return super().create(request)
