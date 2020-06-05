@@ -83,12 +83,14 @@ class RefreshTokenView(APIView):
 
 class SwitchWorkspaceView(APIView):
     def post(self, request):
-        user_id = AuthUtils.get_current_user_id()
-        if not user_id:
+        refresh_token = request.data.get('refresh_token')
+        workspace_id = request.data.get('workspace_id')
+        claim = JWTUtils.get_claim_from_token(token=refresh_token)
+        if not claim:
             raise PermissionDenied()
-        workspace_id = request.data.get('id', None)
+        principal = Principal.objects.get(id=claim['principal_id'])
         workspace = Workspace.objects.get(id=workspace_id)
-        account = Account.objects.get(workspace=workspace, user=User.objects.get(id=AuthUtils.get_current_user_id()))
+        account = Account.objects.get(workspace=workspace, user=principal.account.user)
         (principal, created) = Principal.objects.get_or_create(account=account, client_application=ClientApplication.objects.get(id=AuthUtils.get_current_client_application_id()), roles=account.roles)
         refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
         access_token = JWTUtils.get_access_token(principal_id=principal.id)

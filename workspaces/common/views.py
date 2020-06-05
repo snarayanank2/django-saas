@@ -53,27 +53,29 @@ class AccountViewSet(crud_views.AccountViewSet):
         wus = AccountSerializer(instance=account)
         return Response(wus.data)
 
-class WorkspacePostMixin:
+# Use this mixin to restrict objects to current workspace
+class WorkspaceViewMixin:
     def create(self, request):
-        logger.info('hooking into post call')
         request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
         return super().create(request)
 
-class AttachmentUploadView(crud_views.AttachmentUploadView, WorkspacePostMixin):
+    def get_queryset(self):
+        return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')
+
+
+class AttachmentUploadView(WorkspaceViewMixin, crud_views.AttachmentUploadView):
     pass
 
 class AttachmentDownloadView(crud_views.AttachmentDownloadView):
+    # we need to override get here since we are returning http streaming response
     def get(self, request, pk, *args, **kwargs):
         attachment = Attachment.objects.get(pk=pk)
         if attachment.workspace.id != AuthUtils.get_current_workspace_id():
             raise PermissionDenied()
         return super().get(request, pk, *args, **kwargs)
 
-class TagViewSet(WorkspacePostMixin, crud_views.TagViewSet):
-    def get_queryset(self):
-        return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')
+class TagViewSet(WorkspaceViewMixin, crud_views.TagViewSet):
+    pass
 
-class CommentViewSet(WorkspacePostMixin, crud_views.CommentViewSet):
-    def get_queryset(self):
-        logger.info('called CommentViewSet.get()')
-        return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')
+class CommentViewSet(WorkspaceViewMixin, crud_views.CommentViewSet):
+    pass

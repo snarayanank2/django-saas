@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class Permission(BasePermission):
     policy = {
         'admin' : [{
-            'path_regex' : '.*',
+            'path_regex' : '/admin/.*',
             'read' : True,
             'write' : True
         }], 
@@ -18,9 +18,14 @@ class Permission(BasePermission):
             'path_regex' : '.*',
             'read' : True,
             'write' : False
+            }],
+        'common': [{
+            'path_regex' : '/common/.*',
+            'read' : True,
+            'write' : False
             }]
     }
-    always_allowed_regex = '/basic/signin'
+    always_allowed_regex = '/auth/.*'
 
     def is_allowed(self, role, path, method):
         logger.info('checking role=%s, path=%s, method=%s', role, path, method)
@@ -39,6 +44,7 @@ class Permission(BasePermission):
     def has_permission(self, request, view):
         path = request.get_full_path()
         method = request.method
+
         if re.search(self.always_allowed_regex, path):
             return True
 
@@ -47,7 +53,7 @@ class Permission(BasePermission):
             if self.is_allowed(role, path, method):
                 return True
 
-        return false
+        return False
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request=request, view=view)
