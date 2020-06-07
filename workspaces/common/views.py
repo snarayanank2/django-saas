@@ -31,7 +31,6 @@ logger = logging.getLogger(__name__)
 
 class WorkspaceViewSet(crud_views.WorkspaceViewSet):
     def get_queryset(self):
-        logger.info('hooking into get_queryset')        
         return Workspace.objects.filter(
                 Exists(Account.objects.filter(workspace=OuterRef('pk'), user=User.objects.get(id=AuthUtils.get_current_user_id())))
             ).order_by('-created_at')
@@ -45,7 +44,7 @@ class WorkspaceViewSet(crud_views.WorkspaceViewSet):
 
 class AccountViewSet(crud_views.AccountViewSet):
     def get_queryset(self):
-        return Account.objects.filter(user=User.objects.get(id=AuthUtils.get_current_user_id())).order_by('-created_at')
+        return super().get_queryset().filter(user=User.objects.get(id=AuthUtils.get_current_user_id())).order_by('-created_at')
 
     @action(detail=False, methods=['get'])
     def me(self, request):        
@@ -53,7 +52,8 @@ class AccountViewSet(crud_views.AccountViewSet):
         wus = AccountSerializer(instance=account)
         return Response(wus.data)
 
-# Use this mixin to restrict objects to current workspace
+# Use this mixin to restrict objects to current workspace. Ensure that this is the
+# first class you inherit from
 class WorkspaceViewMixin:
     def create(self, request):
         request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
