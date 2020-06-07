@@ -65,9 +65,19 @@ class Principal(BaseModel):
     class Meta:
         ordering = ['created_at']
 
+
+# class Audit(BaseModel):
+#     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+#     principal = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+')
+#     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='+')
+#     object_id = models.PositiveIntegerField()
+#     op = models.CharField(20)
+#     old_value = models.TextField(null=True)
+#     new_value = models.TextField(null=True)
+    
 # This is the important class that others should inherit from
 
-class WorkspaceBaseModel(BaseModel):
+class WorkspaceModelMixin(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
 
     def save(self, *args, **kwargs):
@@ -81,13 +91,14 @@ class WorkspaceBaseModel(BaseModel):
     class Meta:
         abstract = True
 
-class Tag(WorkspaceBaseModel):
+
+class Tag(WorkspaceModelMixin):
     name = models.CharField(max_length=200)
 
     def __str__(self):
         return self.name
 
-class Attachment(WorkspaceBaseModel):
+class Attachment(WorkspaceModelMixin):
     file = models.FileField(blank=False, null=False)
     content_type = models.CharField(max_length=100)
     filename = models.CharField(max_length=200)
@@ -96,7 +107,7 @@ class Attachment(WorkspaceBaseModel):
         return self.file.name
 
 
-class Comment(WorkspaceBaseModel):
+class Comment(WorkspaceModelMixin):
     message = models.CharField(max_length=1024)
     tags = models.ManyToManyField(Tag)
     attachments = models.ManyToManyField(Attachment)

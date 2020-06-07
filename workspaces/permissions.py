@@ -22,13 +22,13 @@ class Permission(BasePermission):
         'common': [{
             'path_regex' : '/common/.*',
             'read' : True,
-            'write' : False
+            'write' : True
             }]
     }
     always_allowed_regex = '/auth/.*'
 
     def is_allowed(self, role, path, method):
-        logger.info('checking role=%s, path=%s, method=%s', role, path, method)
+#        logger.info('checking role=%s, path=%s, method=%s', role, path, method)
         rules = self.policy[role]
         for rule in rules:
             regex = rule['path_regex']
@@ -49,6 +49,10 @@ class Permission(BasePermission):
             return True
 
         roles = AuthUtils.get_current_roles()
+
+        if not roles:
+            return False
+
         for role in roles.split(','):
             if self.is_allowed(role, path, method):
                 return True

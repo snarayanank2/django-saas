@@ -10,7 +10,7 @@ class AuthUtils:
                 'account_id' : None,
                 'workspace_id': None,
                 'user_id': None,
-                'roles': '',
+                'roles': None,
                 'client_application_id': None
             }
 

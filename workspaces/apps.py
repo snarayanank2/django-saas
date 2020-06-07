@@ -5,7 +5,8 @@ class WorkspacesConfig(AppConfig):
     name = 'workspaces'
 
     def ready(self):
-        from .signals import user_save
+        from workspaces.crud.signals import post_save_callback
+
         from django.contrib.auth.models import User
         from .checks import workspaces_checks
-        post_save.connect(user_save, sender=User)
+        post_save.connect(post_save_callback)

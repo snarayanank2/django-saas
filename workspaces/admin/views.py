@@ -30,12 +30,12 @@ from workspaces.crud import views as crud_views
 logger = logging.getLogger(__name__)
 
 
-class ScheduleViewSet(crud_views.ScheduleViewSet, viewsets.ReadOnlyModelViewSet):
+class ScheduleViewSet(crud_views.ScheduleViewSet):
     def get_queryset(self):
-        return Schedule.objects.filter(
+        return super().get_queryset().filter(
             Exists(WorkspaceSchedule.objects.filter(schedule=OuterRef('pk'), workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())))
         ).order_by('id')
 
-class AccountViewSet(crud_views.AccountViewSet, viewsets.ReadOnlyModelViewSet):
+class AccountViewSet(crud_views.AccountViewSet):
     def get_queryset(self):
-        return Account.objects.filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('id')
+        return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('id')

@@ -34,7 +34,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
     serializer_class = WorkspaceSerializer
     ordering = 'created_at'
 
-class AccountViewSet(viewsets.ModelViewSet):
+class AccountViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
     ordering = 'created_at'
@@ -49,7 +49,7 @@ class PrincipalViewSet(viewsets.ModelViewSet):
     serializer_class = PrincipalSerializer
     ordering = 'created_at'
 
-class ScheduleViewSet(viewsets.ModelViewSet):
+class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
     ordering = 'created_at'
