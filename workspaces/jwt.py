@@ -1,12 +1,10 @@
 from django.conf import settings
 import logging
 import jwt
-from workspaces.models import Principal, Account
-from workspaces.serializers import UserSerializer, AccountSerializer, WorkspaceSerializer, PrincipalSerializer
 import datetime
-from django.core import serializers
 import threading
 from jwt.exceptions import ExpiredSignatureError
+from workspaces.principals.models import Principal
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +12,6 @@ class JWTUtils:
     secret_key = settings.SECRET_KEY
     refresh_token_exp = 60*60*24*30
     access_token_exp = 60*60
-    _storage = threading.local()
 
     @classmethod
     def get_refresh_token(cls, principal_id):

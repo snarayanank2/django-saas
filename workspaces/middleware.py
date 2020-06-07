@@ -1,5 +1,5 @@
 import logging
-from .jwt import JWTUtils
+from workspaces.jwt import JWTUtils
 from workspaces.auth_utils import AuthUtils
 from django.http import (
     HttpResponseBadRequest, HttpResponseForbidden

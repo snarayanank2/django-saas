@@ -3,29 +3,19 @@ import logging
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from django.db.models import Exists, OuterRef
 from django.http import HttpResponse
 from django.http.response import HttpResponseForbidden
-from django_filters.rest_framework.backends import DjangoFilterBackend
-from django_q.models import Schedule
-from rest_framework import (authentication, filters, permissions, status,
-                            viewsets)
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
-from rest_framework.parsers import FileUploadParser
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from workspaces.auth_utils import AuthUtils
-from workspaces.filters import AccountFilter, CommentFilter
+from workspaces.tpas.models import ClientApplication
+from workspaces.accounts.models import Account
+from workspaces.principals.models import Principal
 from workspaces.jwt import JWTUtils
-from workspaces.models import (Account, Attachment, ClientApplication, Comment,
-                               Principal, Tag, Workspace, WorkspaceSchedule)
-from workspaces.serializers import (AccountSerializer, AttachmentSerializer,
-                                    ClientApplicationSerializer,
-                                    CommentSerializer, PrincipalSerializer,
-                                    ScheduleSerializer, TagSerializer,
-                                    UserSerializer, WorkspaceSerializer)
+from workspaces.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 
