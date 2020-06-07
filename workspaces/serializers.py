@@ -3,7 +3,7 @@ import logging
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from workspaces.crud.models import (Attachment, Comment, Principal, Tag, Workspace,
+from workspaces.models import (Attachment, Comment, Principal, Tag, Workspace,
                      Account, WorkspaceSchedule, ClientApplication)
 from workspaces.auth_utils import AuthUtils
 from django_q.models import Schedule, Task

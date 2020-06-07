@@ -1,8 +1,8 @@
 from django.conf import settings
 import logging
 import jwt
-from workspaces.crud.models import Principal, Account
-from workspaces.crud.serializers import UserSerializer, AccountSerializer, WorkspaceSerializer, PrincipalSerializer
+from workspaces.models import Principal, Account
+from workspaces.serializers import UserSerializer, AccountSerializer, WorkspaceSerializer, PrincipalSerializer
 import datetime
 from django.core import serializers
 import threading

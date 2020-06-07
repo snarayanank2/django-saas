@@ -17,11 +17,11 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from workspaces.auth_utils import AuthUtils
-from workspaces.crud.filters import AccountFilter, CommentFilter
+from workspaces.filters import AccountFilter, CommentFilter
 from workspaces.jwt import JWTUtils
-from workspaces.crud.models import (Account, Attachment, ClientApplication, Comment,
+from workspaces.models import (Account, Attachment, ClientApplication, Comment,
                                Principal, Tag, Workspace, WorkspaceSchedule)
-from workspaces.crud.serializers import (AccountSerializer, AttachmentSerializer,
+from workspaces.serializers import (AccountSerializer, AttachmentSerializer,
                                     ClientApplicationSerializer,
                                     CommentSerializer, PrincipalSerializer,
                                     ScheduleSerializer, TagSerializer,

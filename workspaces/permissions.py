@@ -7,7 +7,12 @@ import re
 
 logger = logging.getLogger(__name__)
 
+# Example permissions - please extend to new roles
 class Permission(BasePermission):
+    # policy is a dict were keys are roles and values are list of permissions
+    # permission is a dict with the keys: path_regex, read, write
+    # path_regex should match the specific path that the role is trying to access
+    # read and write are True / False and determine whether the op is allowed or not
     policy = {
         'admin' : [{
             'path_regex' : '/admin/.*',

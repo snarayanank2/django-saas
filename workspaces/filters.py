@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 from django.contrib.auth.models import User
-from workspaces.crud.models import Account, Comment
+from workspaces.models import Account, Comment
 
 class AccountFilter(filters.FilterSet):
     workspace_id = filters.NumberFilter(field_name='workspace_id')

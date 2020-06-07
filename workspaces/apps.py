@@ -5,7 +5,7 @@ class WorkspacesConfig(AppConfig):
     name = 'workspaces'
 
     def ready(self):
-        from workspaces.crud.signals import post_save_callback
+        from workspaces.signals import post_save_callback
 
         from django.contrib.auth.models import User
         from .checks import workspaces_checks

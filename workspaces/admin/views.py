@@ -13,19 +13,19 @@ from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 from workspaces.auth_utils import AuthUtils
 
-from workspaces.crud.filters import CommentFilter, AccountFilter
+from workspaces.filters import CommentFilter, AccountFilter
 from workspaces.jwt import JWTUtils
-from workspaces.crud.models import (Comment, Principal, Tag, Workspace, Account, WorkspaceSchedule, ClientApplication,
+from workspaces.models import (Comment, Principal, Tag, Workspace, Account, WorkspaceSchedule, ClientApplication,
                     Attachment)
 from django_q.models import Schedule
-from workspaces.crud.serializers import (CommentSerializer, PrincipalSerializer,
+from workspaces.serializers import (CommentSerializer, PrincipalSerializer,
                           TagSerializer, UserSerializer, WorkspaceSerializer,
                           AccountSerializer, AttachmentSerializer, ScheduleSerializer,
                           ClientApplicationSerializer)
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password
 from rest_framework.renderers import JSONRenderer
-from workspaces.crud import views as crud_views
+from workspaces import views as crud_views
 
 logger = logging.getLogger(__name__)
 
