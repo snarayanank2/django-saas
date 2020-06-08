@@ -10,27 +10,22 @@ from saas_framework.auth_utils import AuthUtils
 logger = logging.getLogger(__name__)
 
 # Example permissions - please extend to new roles
-class Permission(BasePermission):
+class RolePolicyPermission(BasePermission):
     # policy is a dict were keys are roles and values are list of permissions
     # permission is a dict with the keys: path_regex, read, write
     # path_regex should match the specific path that the role is trying to access
     # read and write are True / False and determine whether the op is allowed or not
     policy = {
-        'admin' : [{
-            'path_regex' : '/admin/.*',
-            'read' : True,
-            'write' : True
-        }], 
         'auditor': [{
             'path_regex' : '.*',
             'read' : True,
             'write' : False
             }],
-        'common': [{
-            'path_regex' : '/common/.*',
+        'super_admin': [{
+            'path_regex' : '.*',
             'read' : True,
             'write' : True
-            }]
+        }]
     }
     always_allowed_regex = '/auth/.*'
 
