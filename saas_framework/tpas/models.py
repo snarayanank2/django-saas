@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 
 from saas_framework.workspaces.models import BaseModel, Workspace
 from saas_framework.accounts.models import Account
-from django.contrib.auth.hashers import make_password
 
 logger = logging.getLogger(__name__)
 
@@ -27,3 +26,4 @@ class AccountThirdPartyApp(BaseModel):
     roles = models.CharField(max_length=200)
     class Meta:
         ordering = ['id']
+

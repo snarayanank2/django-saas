@@ -24,7 +24,7 @@ from saas_framework.jwt import JWTUtils
 from saas_framework.tags.views import TagViewSet
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.views import WorkspaceViewSet
-from saas_framework.tpas.views import ThirdPartyAppViewSet
+from saas_framework.tpas.views import ThirdPartyAppViewSet, AccountThirdPartyAppViewSet
 
 logger = logging.getLogger(__name__)
 
@@ -73,11 +73,17 @@ class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
     def create(self, request):
         request.data['user_id'] = AuthUtils.get_current_user_id()
         return super().create(request)
-  
-# class AccountThirdPartyAppViewSet(viewsets.ModelViewSet):
-#     queryset = AccountThirdPartyApp.objects.all()
-#     serializer_class = AccountThirdPartyAppSerializer
-#     ordering = 'created_at'
+
+class AccountThirdPartyAppViewSet(AccountThirdPartyAppViewSet):
+    def get_queryset(self):
+        return super().get_queryset().filter(account=Account.objects.get(id=AuthUtils.get_current_account_id())).order_by('-created_at')
+
+    # def create(self, request):
+    #     request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
+    #     request.data['account_id'] = AuthUtils.get_account_user_id()
+    #     account = Account.objects.get(id=AuthUtils.get_account_user_id())
+    #     request.data['roles'] = account.roles
+    #     return super().create(request)
 
 # Use this mixin to restrict objects to current workspace. Ensure that this is the
 # first class you inherit from

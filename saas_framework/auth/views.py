@@ -10,11 +10,13 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from saas_framework.auth_utils import AuthUtils
-from saas_framework.tpas.models import ThirdPartyApp
+
 from saas_framework.accounts.models import Account
-from saas_framework.principals.models import Principal
+from saas_framework.auth_utils import AuthUtils
 from saas_framework.jwt import JWTUtils
+from saas_framework.principals.models import Principal
+from saas_framework.tpas.models import ThirdPartyApp
+from saas_framework.tpas.views import OAuth2Authorize, OAuth2Token
 from saas_framework.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
@@ -85,3 +87,15 @@ class SwitchWorkspaceView(APIView):
         refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
         access_token = JWTUtils.get_access_token(principal_id=principal.id)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
+
+class OAuth2Authorize(OAuth2Authorize):
+    def get(self, request):
+        logger.info('request_params %s', request.query_params)
+        request.query_params._mutable = True
+        request.query_params['workspace_id'] = AuthUtils.get_current_workspace_id()
+        request.query_params['account_id'] = AuthUtils.get_current_account_id()
+        request.query_params._mutable = False
+        return super().get(request)
+
+class OAuthToken(OAuth2Authorize):
+    pass

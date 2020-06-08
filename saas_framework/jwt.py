@@ -43,7 +43,7 @@ class JWTUtils:
             'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=exp_seconds)
         }
         encoded = jwt.encode(payload, cls.secret_key, algorithm='HS256')
-        return encoded
+        return str(encoded, 'utf8')
 
     @classmethod
     def get_claim_from_token(cls, token):
