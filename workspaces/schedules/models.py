@@ -13,15 +13,20 @@ class WorkspaceSchedule(BaseModel):
     class Meta:
         ordering = ['workspace']
 
-    # TODO - fix this
-    def create_schedule(self, *args, **kwargs):
-        pass
-        # workspace = self
-        # kwargs_copy = kwargs.copy()
-        # if 'repeats' not in kwargs_copy:
-        #     kwargs_copy['repeats'] = 1
-        # schedule = Schedule.objects.create(*args, **kwargs_copy)
-        # WorkspaceSchedule.objects.create(workspace=workspace, schedule=schedule)
+    @classmethod
+    def create(cls, workspace, *args, **kwargs):
+        task_kwargs = kwargs.copy()
+        schedule_keys = ['func', 'name', 'hook', 'schedule_type', 'minutes', 'repeats', 'next_run', 'q_options']
+        schedule_kwargs = {}
+        for k in schedule_keys:
+            if k in task_kwargs:
+                schedule_kwargs[k] = task_kwargs[k]
+                del task_kwargs[k]
+        if 'repeats' not in schedule_kwargs:
+            schedule_kwargs['repeats'] = 1
+        task_kwargs['workspace_id'] = workspace.id
+        schedule = Schedule.objects.create(*args, **schedule_kwargs, kwargs=task_kwargs)
+        return WorkspaceSchedule.objects.create(workspace=workspace, schedule=schedule)
 
     @property
     def tasks(self):
