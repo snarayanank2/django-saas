@@ -12,9 +12,3 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         model = Workspace
         fields = ['id', 'name']
 
-# Serializers for workspace objects should inherit from this
-class WorkspaceSerializerMixin:
-    workspace_id = PrimaryKeyRelatedField(queryset=Workspace.objects.all(), source='workspace')
-    class Meta:
-        abstract = True
-

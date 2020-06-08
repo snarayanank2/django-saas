@@ -2,12 +2,13 @@ import logging
 
 from django.contrib.auth.models import User
 from django.db import models
-from workspaces.workspaces.models import WorkspaceModelMixin
 from workspaces.auth_utils import AuthUtils
+from workspaces.workspaces.models import Workspace, BaseModel
 
 logger = logging.getLogger(__name__)
 
-class Account(WorkspaceModelMixin):
+class Account(BaseModel):
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     roles = models.CharField(max_length=200)
 

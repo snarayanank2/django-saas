@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from workspaces.attachments.models import Attachment
 from workspaces.attachments.serializers import AttachmentSerializer
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ class AttachmentUploadView(APIView):
     parser_class = (FileUploadParser, )
 
     def post(self, request, *args, **kwargs):
-        # logger.info('request %s', request)
+        logger.info('request.data %s', request.data)
         # logger.info('request.Meta %s', request.META)
         attachment_serializer = AttachmentSerializer(data=request.data)
         attachment_serializer.is_valid(raise_exception=True)
