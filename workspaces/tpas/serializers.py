@@ -1,11 +1,11 @@
 import logging
 
 from rest_framework import serializers
-from workspaces.tpas.models import ClientApplication
+from workspaces.tpas.models import ThirdPartyApp
 
 logger = logging.getLogger(__name__)
 
-class ClientApplicationSerializer(serializers.ModelSerializer):
+class ThirdPartyAppSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ClientApplication
+        model = ThirdPartyApp
         fields = ['id', 'name']

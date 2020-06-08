@@ -11,7 +11,7 @@ class AuthUtils:
                 'workspace_id': None,
                 'user_id': None,
                 'roles': None,
-                'client_application_id': None
+                'tpa_id': None
             }
 
     # these utility functions are used by models to automatically determine principal
@@ -48,7 +48,7 @@ class AuthUtils:
         return cls._storage.claim['roles']
 
     @classmethod
-    def get_current_client_application_id(cls):
+    def get_current_tpa_id(cls):
         assert hasattr(cls._storage, 'claim')
-        return cls._storage.claim['client_application_id']
+        return cls._storage.claim['tpa_id']
 

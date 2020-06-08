@@ -3,7 +3,7 @@ from rest_framework import routers
 from workspaces.admin import views
 
 router = routers.DefaultRouter()
-#router.register(r'client_applications', views.ClientApplicationViewSet)
+#router.register(r'tpas', views.ThirdPartyAppViewSet)
 router.register(r'accounts', views.AccountViewSet)
 router.register(r'schedules', views.ScheduleViewSet)
 
