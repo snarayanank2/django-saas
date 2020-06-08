@@ -18,7 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
-    'workspaces.apps.WorkspacesConfig',
+    'saas_framework.apps.WorkspacesConfig',
     ... # your apps go here
 ]
 
@@ -26,7 +26,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'workspaces.middleware.AuthMiddleware',
+    'saas_framework.middleware.AuthMiddleware',
     ... # any others go here
 ]
 
@@ -65,7 +65,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('', include('workspaces.urls')),
+    path('', include('saas_framework.urls')),
     ... # other paths go here
 ]
 ```

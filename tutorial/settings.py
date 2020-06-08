@@ -39,14 +39,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'django_q',
-    'workspaces.apps.WorkspacesConfig',
+    'saas_framework.apps.WorkspacesConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'workspaces.middleware.AuthMiddleware',
+    'saas_framework.middleware.AuthMiddleware',
 ]
 
 ROOT_URLCONF = 'tutorial.urls'
@@ -125,7 +125,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PERMISSION_CLASSES': (
-        'workspaces.permissions.Permission', 
+        'saas_framework.permissions.Permission', 
     )
 }
 
