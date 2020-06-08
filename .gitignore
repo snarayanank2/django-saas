@@ -18,3 +18,5 @@ dist/
 *.egg-info/
 
 *.sqlite3
+
+load.py

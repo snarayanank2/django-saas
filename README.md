@@ -1,7 +1,10 @@
-# Workspaces
+# Django SaaS Framework
 
-Workspaces is a Django app.
+Django Saas Framework simplifies building SaaS apps. It has models, serializers and views that make
+it easy to build a B2B SaaS application APIs.
 
+Warning: This is under active development and is not ready for production use. Needs a bunch
+of documentation as well.
 
 ## Quick start
 
@@ -34,9 +37,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'saas_framework.permissions.Permission',         
+    ]
 }
 
 # Optional logging

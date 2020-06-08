@@ -4,17 +4,17 @@ with open('README.md', 'r') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='django-workspaces',
+    name='django-saas',
     version='0.1.0',
     author='Siva Narayanan',
-    author_email='siva@fyle.in',
+    author_email='siva@fylehq.com',
     description='Django starter package for SaaS applications',
     license='MIT',
     long_description=long_description,
     long_description_content_type='text/markdown',  
     keywords=['django', 'api', 'python', 'sdk'],
-    url='https://github.com/snarayanank2/django-workspaces',
-    packages=setuptools.find_packages(),
+    url='https://github.com/snarayanank2/django-saas',
+    packages=['saas_framework'],
     install_requires=['djangorestframework==3.11.0', 'django-filter==2.2.0', 
         'pyjwt==1.7.1', 'django-filter==2.2.0', 'django_q==1.2.1'],
     classifiers=[

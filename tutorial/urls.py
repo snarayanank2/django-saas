@@ -2,5 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('', include('saas_framework.urls')),
+    path('auth/', include('tutorial.auth.urls')),
+    path('common/', include('tutorial.common.urls')),
+    path('admin/', include('tutorial.admin.urls')),
 ]

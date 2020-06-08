@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
-from saas_framework.common import views
+from tutorial.common import views
 
 router = routers.DefaultRouter()
 router.register(r'workspaces', views.WorkspaceViewSet)

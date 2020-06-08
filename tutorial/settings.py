@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'django_q',
-    'saas_framework.apps.SaaSConfig'
+    'saas_framework.apps.SaaSConfig',
+    'tutorial.apps.TutorialConfig'
 ]
 
 MIDDLEWARE = [

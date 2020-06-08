@@ -1,5 +1,5 @@
 from django.urls import include, path
-from saas_framework.auth import views
+from tutorial.auth import views
 
 urlpatterns = [
     path('basic/signin/', views.BasicAuthSigninView.as_view()),
