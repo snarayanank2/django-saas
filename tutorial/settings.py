@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'django_q',
-    'saas_framework.apps.WorkspacesConfig',
+    'saas_framework.apps.SaaSConfig'
 ]
 
 MIDDLEWARE = [

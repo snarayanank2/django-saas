@@ -1,7 +1,7 @@
 import logging
 
 from django.db import models
-from django_q.models import Schedule, Task
+from django_q.models import Schedule
 from saas_framework.workspaces.models import Workspace, BaseModel
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class WorkspaceSchedule(BaseModel):
         ordering = ['workspace']
 
     @classmethod
-    def create(cls, workspace, *args, **kwargs):
+    def create_schedule(cls, workspace, *args, **kwargs):
         task_kwargs = kwargs.copy()
         schedule_keys = ['func', 'name', 'hook', 'schedule_type', 'minutes', 'repeats', 'next_run', 'q_options']
         schedule_kwargs = {}
@@ -28,6 +28,6 @@ class WorkspaceSchedule(BaseModel):
         schedule = Schedule.objects.create(*args, **schedule_kwargs, kwargs=task_kwargs)
         return WorkspaceSchedule.objects.create(workspace=workspace, schedule=schedule)
 
-    @property
-    def tasks(self):
-        return Task.objects.filter(group=self.schedule.id)
+    # @property
+    # def tasks(self):
+    #     return Task.objects.filter(group=self.schedule.id)

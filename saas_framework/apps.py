@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_save
 
-class WorkspacesConfig(AppConfig):
+class SaaSConfig(AppConfig):
     name = 'saas_framework'
 
     def ready(self):
