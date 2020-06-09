@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class WorkspaceViewSet(WorkspaceViewSet):
     def get_queryset(self):
         return Workspace.objects.filter(
-                Exists(Account.objects.filter(workspace=OuterRef('pk'), user=User.objects.get(id=AuthUtils.get_current_user_id())))
+                Exists(Account.objects.filter(workspace=OuterRef('pk'), user=AuthUtils.get_current_user_id()))
             ).order_by('-created_at')
 
     def create(self, request):
@@ -43,7 +43,7 @@ class WorkspaceViewSet(WorkspaceViewSet):
 
 class AccountViewSet(AccountViewSet):
     def get_queryset(self):
-        return super().get_queryset().filter(user=User.objects.get(id=AuthUtils.get_current_user_id())).order_by('-created_at')
+        return super().get_queryset().filter(user=AuthUtils.get_current_user_id()).order_by('-created_at')
 
     @action(detail=False, methods=['get'])
     def me(self, request):        
@@ -68,7 +68,7 @@ class AttachmentDownloadView(AttachmentDownloadView):
 
 class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
     def get_queryset(self):
-        return super().get_queryset().filter(user=User.objects.get(id=AuthUtils.get_current_user_id())).order_by('-created_at')
+        return super().get_queryset().filter(user=AuthUtils.get_current_user_id()).order_by('-created_at')
 
     def create(self, request):
         request.data['user_id'] = AuthUtils.get_current_user_id()
@@ -94,7 +94,7 @@ class WorkspaceViewMixin:
         return super().create(request)
 
     def get_queryset(self):
-        return super().get_queryset().filter(workspace=Workspace.objects.get(id=AuthUtils.get_current_workspace_id())).order_by('-created_at')
+        return super().get_queryset().filter(workspace=AuthUtils.get_current_workspace_id()).order_by('-created_at')
 
 class TagViewSet(WorkspaceViewMixin, TagViewSet):
     pass

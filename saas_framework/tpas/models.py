@@ -23,7 +23,7 @@ class AccountThirdPartyApp(BaseModel):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     tpa = models.ForeignKey(ThirdPartyApp, on_delete=models.CASCADE, related_name='+')
     account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='+')
-    roles = models.CharField(max_length=200)
+    roles = models.TextField()
     class Meta:
         ordering = ['id']
 
