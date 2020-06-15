@@ -55,7 +55,7 @@ class AccountViewSet(AccountViewSet):
 class AttachmentUploadView(AttachmentUploadView):
     def post(self, request, *args, **kwargs):
         request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
-        logger.info('request.data = %s', request.data)
+        # logger.info('request.data = %s', request.data)
         return super().post(request)
 
 class AttachmentDownloadView(AttachmentDownloadView):
@@ -90,7 +90,7 @@ class AccountThirdPartyAppViewSet(AccountThirdPartyAppViewSet):
 class WorkspaceViewMixin:
     def create(self, request):
         request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
-        logger.info('request.data = %s', request.data)
+        # logger.info('request.data = %s', request.data)
         return super().create(request)
 
     def get_queryset(self):
