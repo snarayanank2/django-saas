@@ -20,3 +20,5 @@ dist/
 *.sqlite3
 
 load.py
+*.jpeg
+*.png

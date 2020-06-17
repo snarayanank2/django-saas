@@ -7,7 +7,6 @@ from saas_framework.workspaces.models import Workspace, BaseModel
 logger = logging.getLogger(__name__)
 
 class Comment(BaseModel):
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     message = models.CharField(max_length=1024)
     tags = models.ManyToManyField(Tag)
     attachments = models.ManyToManyField(Attachment)

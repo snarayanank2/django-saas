@@ -12,19 +12,21 @@ from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from saas_framework.accounts.models import Account
 from saas_framework.accounts.serializers import AccountSerializer
 from saas_framework.accounts.views import AccountViewSet
 from saas_framework.attachments.models import Attachment
-from saas_framework.attachments.views import (AttachmentDownloadView,
-                                          AttachmentUploadView)
+from saas_framework.attachments.views import AttachmentViewSet
 from saas_framework.auth_utils import AuthUtils
 from saas_framework.comments.views import CommentViewSet
 from saas_framework.jwt import JWTUtils
 from saas_framework.tags.views import TagViewSet
+from saas_framework.tpas.views import (AccountThirdPartyAppViewSet,
+                                       ThirdPartyAppViewSet)
 from saas_framework.workspaces.models import Workspace
-from saas_framework.workspaces.views import WorkspaceViewSet
-from saas_framework.tpas.views import ThirdPartyAppViewSet, AccountThirdPartyAppViewSet
+from saas_framework.workspaces.views import (WorkspaceMappingModelViewSetMixin,
+                                             WorkspaceViewSet)
 
 logger = logging.getLogger(__name__)
 
@@ -51,21 +53,6 @@ class AccountViewSet(AccountViewSet):
         wus = AccountSerializer(instance=account)
         return Response(wus.data)
 
-
-class AttachmentUploadView(AttachmentUploadView):
-    def post(self, request, *args, **kwargs):
-        request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
-        # logger.info('request.data = %s', request.data)
-        return super().post(request)
-
-class AttachmentDownloadView(AttachmentDownloadView):
-    # we need to override get here since we are returning http streaming response
-    def get(self, request, pk, *args, **kwargs):
-        attachment = Attachment.objects.get(pk=pk)
-        if attachment.workspace.id != AuthUtils.get_current_workspace_id():
-            raise PermissionDenied()
-        return super().get(request, pk, *args, **kwargs)
-
 class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
     def get_queryset(self):
         return super().get_queryset().filter(user=AuthUtils.get_current_user_id()).order_by('-created_at')
@@ -85,19 +72,12 @@ class AccountThirdPartyAppViewSet(AccountThirdPartyAppViewSet):
     #     request.data['roles'] = account.roles
     #     return super().create(request)
 
-# Use this mixin to restrict objects to current workspace. Ensure that this is the
-# first class you inherit from
-class WorkspaceViewMixin:
-    def create(self, request):
-        request.data['workspace_id'] = AuthUtils.get_current_workspace_id()
-        # logger.info('request.data = %s', request.data)
-        return super().create(request)
 
-    def get_queryset(self):
-        return super().get_queryset().filter(workspace=AuthUtils.get_current_workspace_id()).order_by('-created_at')
-
-class TagViewSet(WorkspaceViewMixin, TagViewSet):
+class AttachmentViewSet(WorkspaceMappingModelViewSetMixin, AttachmentViewSet):
     pass
 
-class CommentViewSet(WorkspaceViewMixin, CommentViewSet):
+class TagViewSet(WorkspaceMappingModelViewSetMixin, TagViewSet):
+    pass
+
+class CommentViewSet(WorkspaceMappingModelViewSetMixin, CommentViewSet):
     pass

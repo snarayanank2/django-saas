@@ -9,25 +9,17 @@ from rest_framework.views import APIView
 from saas_framework.attachments.models import Attachment
 from saas_framework.attachments.serializers import AttachmentSerializer
 from rest_framework import status
-
+from rest_framework import viewsets
+from rest_framework.decorators import action
 logger = logging.getLogger(__name__)
 
-# TODO: api for list of attachments
+class AttachmentViewSet(viewsets.ModelViewSet):
+    queryset = Attachment.objects.all()
+    serializer_class = AttachmentSerializer
+    ordering = 'created_at'
 
-class AttachmentUploadView(APIView):
-    parser_class = (FileUploadParser, )
-
-    def post(self, request, *args, **kwargs):
-        logger.info('request.data %s', request.data)
-        # logger.info('request.Meta %s', request.META)
-        attachment_serializer = AttachmentSerializer(data=request.data)
-        attachment_serializer.is_valid(raise_exception=True)
-        attachment = attachment_serializer.save()
-        return Response(attachment_serializer.data, status=status.HTTP_201_CREATED)
-
-class AttachmentDownloadView(APIView):
-
-    def get(self, request, pk, *args, **kwargs):
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk=None):
         attachment = Attachment.objects.get(pk=pk)
         out = attachment.file.open(mode='rb')
         response = HttpResponse(out.read(), content_type=f'{attachment.content_type}')
