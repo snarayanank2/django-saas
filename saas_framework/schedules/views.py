@@ -10,5 +10,3 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
     ordering = 'created_at'
-
-# TODO: add viewset for workspaceschedules

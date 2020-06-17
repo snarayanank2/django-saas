@@ -1,6 +1,5 @@
 import logging
 
-from saas_framework.schedules.models import WorkspaceSchedule
 from django.db.models.expressions import Exists, OuterRef
 from saas_framework.workspaces.models import Workspace
 from saas_framework.auth_utils import AuthUtils
@@ -12,6 +11,7 @@ from saas_framework.accounts.models import Account
 from django.contrib.auth.models import User
 from rest_framework.exceptions import PermissionDenied
 from saas_framework.tpas.models import AccountThirdPartyApp
+from saas_framework.workspaces.views import WorkspaceMappingModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +20,6 @@ class UserViewSet(UserViewSet):
         return super().get_queryset().filter(
                 Exists(Account.objects.filter(user=OuterRef('pk'), workspace=AuthUtils.get_current_workspace_id()))
             ).order_by('-id')
-
-class ScheduleViewSet(ScheduleViewSet):
-    def get_queryset(self):
-        return super().get_queryset().filter(
-            Exists(WorkspaceSchedule.objects.filter(schedule=OuterRef('pk'), workspace=AuthUtils.get_current_workspace_id()))
-        ).order_by('id')
 
 class AccountViewSet(AccountViewSet):
     def get_queryset(self):
@@ -40,3 +34,6 @@ class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
     def create(self, request):
         # admins cannot create
         raise PermissionDenied()
+
+class ScheduleViewSet(WorkspaceMappingModelViewSetMixin, ScheduleViewSet):
+    pass
