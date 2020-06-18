@@ -26,7 +26,7 @@ from saas_framework.tpas.views import (AccountThirdPartyAppViewSet,
                                        ThirdPartyAppViewSet)
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.views import WorkspaceViewSet
-from saas_framework.workspace_mappings.views import WorkspaceMappingModelViewSetMixin
+from saas_framework.workspace_membership.views import WorkspaceMembershipModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
@@ -73,11 +73,11 @@ class AccountThirdPartyAppViewSet(AccountThirdPartyAppViewSet):
     #     return super().create(request)
 
 
-class AttachmentViewSet(WorkspaceMappingModelViewSetMixin, AttachmentViewSet):
+class AttachmentViewSet(WorkspaceMembershipModelViewSetMixin, AttachmentViewSet):
     pass
 
-class TagViewSet(WorkspaceMappingModelViewSetMixin, TagViewSet):
+class TagViewSet(WorkspaceMembershipModelViewSetMixin, TagViewSet):
     pass
 
-class CommentViewSet(WorkspaceMappingModelViewSetMixin, CommentViewSet):
+class CommentViewSet(WorkspaceMembershipModelViewSetMixin, CommentViewSet):
     pass

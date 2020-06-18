@@ -10,19 +10,14 @@ from saas_framework.workspaces.models import BaseModel, Workspace
 
 logger = logging.getLogger(__name__)
 
-class SoftDeleteManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(deleted_at__isnull=True)
+class ClosedSet(BaseModel):
+    name = models.CharField(max_length=200)
 
-class WorkspaceMapping(BaseModel):
-    # overload objectmanager to only return things that have not been deleted
-    objects = SoftDeleteManager()
-    all_objects = models.Manager()
+    def __str__(self):
+        return self.name
 
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+class ClosedSetMembership:
+    closed_set = models.ForeignKey(ClosedSet, on_delete=models.CASCADE, related_name='+')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='+')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    created_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+', null=True)
-    deleted_at = models.DateTimeField(blank=True, null=True)
-

@@ -11,7 +11,7 @@ from saas_framework.accounts.models import Account
 from django.contrib.auth.models import User
 from rest_framework.exceptions import PermissionDenied
 from saas_framework.tpas.models import AccountThirdPartyApp
-from saas_framework.workspace_mappings.views import WorkspaceMappingModelViewSetMixin
+from saas_framework.workspace_membership.views import WorkspaceMembershipModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
@@ -35,5 +35,5 @@ class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
         # admins cannot create
         raise PermissionDenied()
 
-class ScheduleViewSet(WorkspaceMappingModelViewSetMixin, ScheduleViewSet):
+class ScheduleViewSet(WorkspaceMembershipModelViewSetMixin, ScheduleViewSet):
     pass
