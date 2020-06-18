@@ -25,8 +25,8 @@ from saas_framework.tags.views import TagViewSet
 from saas_framework.tpas.views import (AccountThirdPartyAppViewSet,
                                        ThirdPartyAppViewSet)
 from saas_framework.workspaces.models import Workspace
-from saas_framework.workspaces.views import (WorkspaceMappingModelViewSetMixin,
-                                             WorkspaceViewSet)
+from saas_framework.workspaces.views import WorkspaceViewSet
+from saas_framework.workspace_mappings.views import WorkspaceMappingModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
