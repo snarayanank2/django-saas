@@ -8,11 +8,20 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.expressions import Exists, OuterRef
 from saas_framework.principals.models import Principal
 from django.utils import timezone
+from rest_framework.exceptions import NotFound
+from rest_framework.decorators import action
 
 logger = logging.getLogger(__name__)
 
+# TODO: this is incomplete - need to figure out a way to do this properly
+
 class ClosedSetMembershipModelViewSetMixin:
- 
+    def get_content_type(self):
+        qs = super().get_queryset()
+        model = qs.model
+        content_type = ContentType.objects.get_for_model(model)
+        return content_type
+
     # by default only returns objects in this workspace
     def get_queryset(self):
         closed_set_id = self.request.data.get('closed_set_id', None)
@@ -20,11 +29,8 @@ class ClosedSetMembershipModelViewSetMixin:
             logger.info('no closed_set_id')
             return super().get_queryset()
         else:
-            qs = super().get_queryset()
-            model = qs.model
-            content_type = ContentType.objects.get_for_model(model)
+            content_type = self.get_content_type()
             # given queryset, we need to find content_type
             return super().get_queryset().filter(
                 Exists(ClosedSetMembership.objects.filter(object_id=OuterRef('pk'), content_type=content_type, closed_set=closed_set_id)),
             ).order_by('id')
-
