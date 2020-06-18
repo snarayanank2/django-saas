@@ -77,7 +77,7 @@ class AccountThirdPartyAppViewSet(AccountThirdPartyAppViewSet):
 class AttachmentViewSet(WorkspaceMembershipModelViewSetMixin, AttachmentViewSet):
     pass
 
-class TagViewSet(ClosedSetMembershipModelViewSetMixin, WorkspaceMembershipModelViewSetMixin, TagViewSet):
+class TagViewSet(WorkspaceMembershipModelViewSetMixin, TagViewSet):
     pass
 
 class CommentViewSet(WorkspaceMembershipModelViewSetMixin, CommentViewSet):

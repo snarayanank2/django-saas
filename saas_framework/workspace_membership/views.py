@@ -30,6 +30,7 @@ class WorkspaceMembershipModelViewSetMixin:
         wm.deleted_at = timezone.now()
         wm.save()
 
+
     # by default only returns objects in this workspace
     def get_queryset(self):
         return super().get_queryset().filter(

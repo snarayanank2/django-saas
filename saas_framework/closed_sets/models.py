@@ -11,12 +11,10 @@ from saas_framework.workspaces.models import BaseModel, Workspace
 logger = logging.getLogger(__name__)
 
 class ClosedSet(BaseModel):
-    name = models.CharField(max_length=200)
-
     def __str__(self):
         return self.name
 
-class ClosedSetMembership:
+class ClosedSetMembership(BaseModel):
     closed_set = models.ForeignKey(ClosedSet, on_delete=models.CASCADE, related_name='+')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='+')
     object_id = models.PositiveIntegerField()

@@ -6,10 +6,11 @@ from rest_framework import viewsets
 from saas_framework.comments.filters import CommentFilter
 from saas_framework.comments.models import Comment
 from saas_framework.comments.serializers import CommentSerializer
+from saas_framework.closed_sets.views import ClosedSetMembershipModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(ClosedSetMembershipModelViewSetMixin, viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]

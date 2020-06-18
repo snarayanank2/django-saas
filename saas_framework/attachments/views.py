@@ -11,9 +11,11 @@ from saas_framework.attachments.serializers import AttachmentSerializer
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from saas_framework.closed_sets.views import ClosedSetMembershipModelViewSetMixin
+
 logger = logging.getLogger(__name__)
 
-class AttachmentViewSet(viewsets.ModelViewSet):
+class AttachmentViewSet(ClosedSetMembershipModelViewSetMixin, viewsets.ModelViewSet):
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
     ordering = 'created_at'
