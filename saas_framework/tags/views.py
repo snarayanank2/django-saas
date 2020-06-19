@@ -4,7 +4,7 @@ import logging
 from rest_framework import viewsets
 from saas_framework.tags.models import Tag
 from saas_framework.tags.serializers import TagSerializer
-from saas_framework.closed_sets.views import ClosedSetMembershipModelViewSetMixin
+from saas_framework.closed_sets.mixins import ClosedSetMembershipModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
