@@ -27,7 +27,7 @@ from saas_framework.tpas.views import (AccountThirdPartyAppViewSet,
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.views import WorkspaceViewSet
 from saas_framework.workspace_membership.views import WorkspaceMembershipModelViewSetMixin
-from saas_framework.closed_sets.views import ClosedSetMembershipModelViewSetMixin
+from saas_framework.closed_sets.views import ClosedSetViewSet, ClosedSetMembershipModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +73,9 @@ class AccountThirdPartyAppViewSet(AccountThirdPartyAppViewSet):
     #     request.data['roles'] = account.roles
     #     return super().create(request)
 
+
+class ClosedSetViewSet(WorkspaceMembershipModelViewSetMixin, ClosedSetViewSet):
+    pass
 
 class AttachmentViewSet(WorkspaceMembershipModelViewSetMixin, AttachmentViewSet):
     pass
