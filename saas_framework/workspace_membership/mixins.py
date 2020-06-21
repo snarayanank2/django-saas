@@ -12,6 +12,8 @@ from django.utils import timezone
 from saas_framework.closed_sets.models import ClosedSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import NotFound
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +31,10 @@ class WorkspaceMembershipModelViewSetMixin:
 
     def perform_destroy(self, instance):
         content_type = ContentType.objects.get_for_model(instance)
-        wm = WorkspaceMembership.objects.get(content_type=content_type, object_id=instance.id)
+        try:
+            wm = WorkspaceMembership.objects.get(content_type=content_type, object_id=instance.id)
+        except ObjectDoesNotExist:
+            raise NotFound()
         wm.deleted_at = timezone.now()
         wm.save()
 

@@ -27,7 +27,7 @@ from saas_framework.tpas.views import (AccountThirdPartyAppViewSet,
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.views import WorkspaceViewSet
 from saas_framework.workspace_membership.mixins import WorkspaceMembershipModelViewSetMixin
-from saas_framework.closed_sets.views import ClosedSetViewSet, ClosedSetMembershipModelViewSetMixin
+from saas_framework.closed_sets.views import ClosedSetViewSet
 
 logger = logging.getLogger(__name__)
 
