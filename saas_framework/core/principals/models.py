@@ -1,9 +1,9 @@
 import logging
 
 from django.db import models
-from saas_framework.accounts.models import Account
-from saas_framework.tpas.models import ThirdPartyApp
-from saas_framework.workspaces.models import BaseModel
+from saas_framework.core.accounts.models import Account
+from saas_framework.core.tpas.models import ThirdPartyApp
+from saas_framework.core.workspaces.models import BaseModel
 
 logger = logging.getLogger(__name__)
 

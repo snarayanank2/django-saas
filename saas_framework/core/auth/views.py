@@ -11,13 +11,13 @@ from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from saas_framework.accounts.models import Account
-from saas_framework.auth_utils import AuthUtils
-from saas_framework.jwt import JWTUtils
-from saas_framework.principals.models import Principal
-from saas_framework.tpas.models import ThirdPartyApp
-from saas_framework.tpas.views import OAuth2Authorize, OAuth2Token
-from saas_framework.workspaces.models import Workspace
+from saas_framework.core.accounts.models import Account
+from saas_framework.core.auth_utils import AuthUtils
+from saas_framework.core.jwt import JWTUtils
+from saas_framework.core.principals.models import Principal
+from saas_framework.core.tpas.models import ThirdPartyApp
+from saas_framework.core.tpas.views import OAuth2Authorize, OAuth2Token
+from saas_framework.core.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 

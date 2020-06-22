@@ -4,9 +4,9 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from rest_framework.relations import PrimaryKeyRelatedField
-from saas_framework.users.serializers import UserSerializer
-from saas_framework.workspaces.serializers import WorkspaceSerializer
-from saas_framework.accounts.models import Account
+from saas_framework.core.users.serializers import UserSerializer
+from saas_framework.core.workspaces.serializers import WorkspaceSerializer
+from saas_framework.core.accounts.models import Account
 logger = logging.getLogger(__name__)
 
 

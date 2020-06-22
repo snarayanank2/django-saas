@@ -13,20 +13,20 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from saas_framework.accounts.models import Account
-from saas_framework.accounts.serializers import AccountSerializer
-from saas_framework.accounts.views import AccountViewSet
+from saas_framework.core.accounts.models import Account
+from saas_framework.core.accounts.serializers import AccountSerializer
+from saas_framework.core.accounts.views import AccountViewSet
 from saas_framework.attachments.models import Attachment
 from saas_framework.attachments.views import AttachmentViewSet
-from saas_framework.auth_utils import AuthUtils
+from saas_framework.core.auth_utils import AuthUtils
 from saas_framework.comments.views import CommentViewSet
-from saas_framework.jwt import JWTUtils
+from saas_framework.core.jwt import JWTUtils
 from saas_framework.tags.views import TagViewSet
-from saas_framework.tpas.views import (AccountThirdPartyAppViewSet,
+from saas_framework.core.tpas.views import (AccountThirdPartyAppViewSet,
                                        ThirdPartyAppViewSet)
-from saas_framework.workspaces.models import Workspace
-from saas_framework.workspaces.views import WorkspaceViewSet
-from saas_framework.workspace_membership.mixins import WorkspaceMembershipModelViewSetMixin
+from saas_framework.core.workspaces.models import Workspace
+from saas_framework.core.workspaces.views import WorkspaceViewSet
+from saas_framework.core.workspace_membership.mixins import WorkspaceMembershipModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 

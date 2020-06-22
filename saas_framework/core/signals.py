@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 import logging
 from itertools import chain
-from saas_framework.auth_utils import AuthUtils
+from saas_framework.core.auth_utils import AuthUtils
 import threading
 from django.db.models.signals import post_save, post_delete
 from saas_framework.tags.models import Tag

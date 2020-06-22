@@ -4,7 +4,7 @@ import jwt
 import datetime
 import threading
 from jwt.exceptions import ExpiredSignatureError
-from saas_framework.principals.models import Principal
+from saas_framework.core.principals.models import Principal
 
 logger = logging.getLogger(__name__)
 

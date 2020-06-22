@@ -1,17 +1,17 @@
 import logging
 
 from django.db.models.expressions import Exists, OuterRef
-from saas_framework.workspaces.models import Workspace
-from saas_framework.auth_utils import AuthUtils
+from saas_framework.core.workspaces.models import Workspace
+from saas_framework.core.auth_utils import AuthUtils
 from saas_framework.schedules.views import ScheduleViewSet
-from saas_framework.accounts.views import AccountViewSet
-from saas_framework.users.views import UserViewSet
-from saas_framework.tpas.views import ThirdPartyAppViewSet
-from saas_framework.accounts.models import Account
+from saas_framework.core.accounts.views import AccountViewSet
+from saas_framework.core.users.views import UserViewSet
+from saas_framework.core.tpas.views import ThirdPartyAppViewSet
+from saas_framework.core.accounts.models import Account
 from django.contrib.auth.models import User
 from rest_framework.exceptions import PermissionDenied
-from saas_framework.tpas.models import AccountThirdPartyApp
-from saas_framework.workspace_membership.mixins import WorkspaceMembershipModelViewSetMixin
+from saas_framework.core.tpas.models import AccountThirdPartyApp
+from saas_framework.core.workspace_membership.mixins import WorkspaceMembershipModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 

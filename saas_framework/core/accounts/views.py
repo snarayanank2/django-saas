@@ -1,8 +1,8 @@
 import logging
 
 from rest_framework import viewsets
-from saas_framework.accounts.models import Account
-from saas_framework.accounts.serializers import AccountSerializer
+from saas_framework.core.accounts.models import Account
+from saas_framework.core.accounts.serializers import AccountSerializer
 
 logger = logging.getLogger(__name__)
 

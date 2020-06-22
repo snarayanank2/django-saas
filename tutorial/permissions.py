@@ -3,9 +3,9 @@ import json
 import logging
 import re
 
-from saas_framework.permissions import RolePolicyPermission
+from saas_framework.core.permissions import RolePolicyPermission
 
-from saas_framework.auth_utils import AuthUtils
+from saas_framework.core.auth_utils import AuthUtils
 
 logger = logging.getLogger(__name__)
 

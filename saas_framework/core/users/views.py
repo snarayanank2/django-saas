@@ -2,7 +2,7 @@ import logging
 
 from django.contrib.auth.models import User
 from rest_framework import viewsets
-from saas_framework.users.serializers import UserSerializer
+from saas_framework.core.users.serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
 

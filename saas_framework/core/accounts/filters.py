@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from saas_framework.accounts.models import Account
+from saas_framework.core.accounts.models import Account
 
 class AccountFilter(filters.FilterSet):
     workspace_id = filters.NumberFilter(field_name='workspace_id')

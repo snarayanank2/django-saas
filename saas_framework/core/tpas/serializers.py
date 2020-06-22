@@ -1,15 +1,15 @@
 import logging
 
 from rest_framework import serializers
-from saas_framework.tpas.models import ThirdPartyApp
-from saas_framework.accounts.serializers import AccountSerializer
+from saas_framework.core.tpas.models import ThirdPartyApp
+from saas_framework.core.accounts.serializers import AccountSerializer
 from rest_framework.relations import PrimaryKeyRelatedField
-from saas_framework.accounts.models import Account
-from saas_framework.workspaces.models import Workspace
-from saas_framework.workspaces.serializers import WorkspaceSerializer
+from saas_framework.core.accounts.models import Account
+from saas_framework.core.workspaces.models import Workspace
+from saas_framework.core.workspaces.serializers import WorkspaceSerializer
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from saas_framework.users.serializers import UserSerializer
+from saas_framework.core.users.serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
 

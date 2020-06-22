@@ -1,14 +1,14 @@
 import logging
-from saas_framework.tpas.models import AccountThirdPartyApp, ThirdPartyApp
-from saas_framework.tpas.serializers import AccountThirdPartyAppSerializer, ThirdPartyAppSerializer
+from saas_framework.core.tpas.models import AccountThirdPartyApp, ThirdPartyApp
+from saas_framework.core.tpas.serializers import AccountThirdPartyAppSerializer, ThirdPartyAppSerializer
 from rest_framework import viewsets
 from rest_framework.response import Response
-from saas_framework.jwt import JWTUtils
-from saas_framework.accounts.models import Account
+from saas_framework.core.jwt import JWTUtils
+from saas_framework.core.accounts.models import Account
 from rest_framework.exceptions import PermissionDenied
-from saas_framework.workspaces.models import Workspace
+from saas_framework.core.workspaces.models import Workspace
 from django.contrib.auth.hashers import make_password
-from saas_framework.principals.models import Principal
+from saas_framework.core.principals.models import Principal
 from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)

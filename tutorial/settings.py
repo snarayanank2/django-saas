@@ -47,7 +47,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'saas_framework.middleware.AuthMiddleware',
+    'saas_framework.core.middleware.AuthMiddleware',
 ]
 
 ROOT_URLCONF = 'tutorial.urls'

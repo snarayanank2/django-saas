@@ -3,13 +3,13 @@ import logging
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from saas_framework.auth_utils import AuthUtils
+from saas_framework.core.auth_utils import AuthUtils
 from rest_framework.relations import PrimaryKeyRelatedField
 from saas_framework.tags.models import Tag
 from saas_framework.tags.serializers import TagSerializer
 from saas_framework.attachments.models import Attachment
 from saas_framework.comments.models import Comment
-from saas_framework.workspaces.models import Workspace
+from saas_framework.core.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 

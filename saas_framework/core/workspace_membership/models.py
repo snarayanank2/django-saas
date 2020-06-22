@@ -2,11 +2,11 @@ import logging
 
 from django.contrib.auth.models import User
 from django.db import models
-from saas_framework.auth_utils import AuthUtils
+from saas_framework.core.auth_utils import AuthUtils
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from saas_framework.principals.models import Principal
-from saas_framework.workspaces.models import BaseModel, Workspace
+from saas_framework.core.principals.models import Principal
+from saas_framework.core.workspaces.models import BaseModel, Workspace
 
 logger = logging.getLogger(__name__)
 

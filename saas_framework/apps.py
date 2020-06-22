@@ -5,6 +5,6 @@ class SaaSConfig(AppConfig):
     name = 'saas_framework'
 
     def ready(self):
-        from saas_framework.signals import ChangeHandler
+        from saas_framework.core.signals import ChangeHandler
         from saas_framework.checks import workspaces_checks
         ChangeHandler.register()

@@ -1,6 +1,6 @@
 import logging
-from saas_framework.jwt import JWTUtils
-from saas_framework.auth_utils import AuthUtils
+from saas_framework.core.jwt import JWTUtils
+from saas_framework.core.auth_utils import AuthUtils
 
 logger = logging.getLogger(__name__)
 

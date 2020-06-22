@@ -3,8 +3,8 @@ import logging
 from django.db import models
 from django.contrib.auth.models import User
 
-from saas_framework.workspaces.models import BaseModel, Workspace
-from saas_framework.accounts.models import Account
+from saas_framework.core.workspaces.models import BaseModel, Workspace
+from saas_framework.core.accounts.models import Account
 
 logger = logging.getLogger(__name__)
 

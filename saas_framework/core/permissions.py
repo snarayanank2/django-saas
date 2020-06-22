@@ -5,7 +5,7 @@ import re
 
 from rest_framework.permissions import BasePermission
 
-from saas_framework.auth_utils import AuthUtils
+from saas_framework.core.auth_utils import AuthUtils
 
 logger = logging.getLogger(__name__)
 
