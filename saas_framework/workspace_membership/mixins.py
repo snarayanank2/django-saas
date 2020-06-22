@@ -41,6 +41,6 @@ class WorkspaceMembershipModelViewSetMixin:
     # by default only returns objects in this workspace
     def get_queryset(self):
         return super().get_queryset().filter(
-            Exists(WorkspaceMembership.objects.filter(object_id=OuterRef('pk'), workspace=AuthUtils.get_current_workspace_id())),
+            Exists(WorkspaceMembership.objects.filter(object_id=OuterRef('pk'), workspace=AuthUtils.get_current_workspace_id(), deleted_at__isnull=True)),
         ).order_by('id')
 
