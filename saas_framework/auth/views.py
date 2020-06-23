@@ -16,7 +16,7 @@ from saas_framework.core.principals.models import Principal
 from saas_framework.core.tpas.models import ThirdPartyApp
 from saas_framework.core.tpas.views import OAuth2Authorize, OAuth2Token
 from saas_framework.core.workspaces.models import Workspace
-from saas_framework.core.claim import Claim
+from saas_framework.core.auth.claim import Claim
 
 logger = logging.getLogger(__name__)
 

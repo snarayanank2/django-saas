@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from saas_framework.core.accounts.models import Account
-from saas_framework.core.claim import Claim
+from saas_framework.core.auth.claim import Claim
 from saas_framework.core.principals.models import Principal
 from saas_framework.core.tpas.models import AccountThirdPartyApp, ThirdPartyApp
 from saas_framework.core.tpas.serializers import (

@@ -29,7 +29,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'saas_framework.core.middleware.AuthMiddleware',
+    'saas_framework.core.auth.middleware.AuthMiddleware',
     ... # any others go here
 ]
 
@@ -38,7 +38,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PERMISSION_CLASSES': [
-        'saas_framework.core.permissions.Permission',         
+        'saas_framework.core.auth.permissions.Permission',         
     ]
 }
 

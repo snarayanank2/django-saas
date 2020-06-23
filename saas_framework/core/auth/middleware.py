@@ -1,5 +1,5 @@
 import logging
-from saas_framework.core.claim import Claim
+from saas_framework.core.auth.claim import Claim
 
 logger = logging.getLogger(__name__)
 
