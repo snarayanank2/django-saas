@@ -2,7 +2,6 @@ import logging
 
 from django.db.models.expressions import Exists, OuterRef
 from saas_framework.core.workspaces.models import Workspace
-from saas_framework.core.auth_utils import AuthUtils
 from saas_framework.schedules.views import ScheduleViewSet
 from saas_framework.core.accounts.views import AccountViewSet
 from saas_framework.core.users.views import UserViewSet
@@ -18,17 +17,17 @@ logger = logging.getLogger(__name__)
 class UserViewSet(UserViewSet):
     def get_queryset(self):
         return super().get_queryset().filter(
-                Exists(Account.objects.filter(user=OuterRef('pk'), workspace=AuthUtils.get_current_workspace_id()))
+                Exists(Account.objects.filter(user=OuterRef('pk'), workspace=self.request.claim.workspace_id))
             ).order_by('-id')
 
 class AccountViewSet(AccountViewSet):
     def get_queryset(self):
-        return super().get_queryset().filter(workspace=AuthUtils.get_current_workspace_id()).order_by('id')
+        return super().get_queryset().filter(workspace=self.request.claim.workspace_id).order_by('id')
 
 class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
     def get_queryset(self):
         return super().get_queryset().filter(
-            Exists(AccountThirdPartyApp.objects.filter(tpa=OuterRef('pk'), workspace=AuthUtils.get_current_workspace_id()))
+            Exists(AccountThirdPartyApp.objects.filter(tpa=OuterRef('pk'), workspace=self.request.claim.workspace_id))
             ).order_by('-created_at')
 
     def create(self, request):

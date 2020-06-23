@@ -3,7 +3,6 @@ import logging
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from saas_framework.core.auth_utils import AuthUtils
 from rest_framework.relations import PrimaryKeyRelatedField
 from saas_framework.tags.models import Tag
 from saas_framework.tags.serializers import TagSerializer

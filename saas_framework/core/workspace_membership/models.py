@@ -2,7 +2,6 @@ import logging
 
 from django.contrib.auth.models import User
 from django.db import models
-from saas_framework.core.auth_utils import AuthUtils
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from saas_framework.core.principals.models import Principal

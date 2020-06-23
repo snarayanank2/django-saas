@@ -12,12 +12,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from saas_framework.core.accounts.models import Account
-from saas_framework.core.auth_utils import AuthUtils
-from saas_framework.core.jwt import JWTUtils
 from saas_framework.core.principals.models import Principal
 from saas_framework.core.tpas.models import ThirdPartyApp
 from saas_framework.core.tpas.views import OAuth2Authorize, OAuth2Token
 from saas_framework.core.workspaces.models import Workspace
+from saas_framework.core.claim import Claim
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +35,9 @@ class BasicAuthSigninView(APIView):
         account = Account.objects.filter(user=user).order_by('-created_at').all()[0]
         # log into the oldest workspace by default
         (principal, created) = Principal.objects.get_or_create(account=account, tpa=tpa, roles=account.roles)
-        refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
-        access_token = JWTUtils.get_access_token(principal_id=principal.id)
+        claim = Claim(user_id=user.id, workspace_id=account.workspace.id, principal_id=principal.id, tpa_id=tpa.id, account_id=account.id, roles=account.roles)
+        refresh_token = claim.to_token(exp_seconds=7*24*3600)
+        access_token = claim.to_token(exp_seconds=600)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
 class BasicAuthSignupView(APIView):
@@ -57,8 +57,9 @@ class BasicAuthSignupView(APIView):
         workspace = Workspace.objects.create(name='Default')
         account = Account.objects.create(user=user, workspace=workspace, roles='admin')
         (principal, created) = Principal.objects.get_or_create(workspace=account.workspace, user=account.user, tpa=tpa)
-        refresh_token = JWTUtils.get_refresh_token(principal_id=AuthUtils.get_current_principal_id())
-        access_token = JWTUtils.get_access_token(principal_id=AuthUtils.get_current_principal_id())
+        claim = Claim(user_id=user.id, workspace_id=workspace.id, principal_id=principal.id, tpa_id=tpa.id, account_id=account.id, roles=account.roles)
+        refresh_token = claim.to_token(exp_seconds=7*24*3600)
+        access_token = claim.to_token(exp_seconds=600)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
 class RefreshTokenView(APIView):
@@ -66,50 +67,44 @@ class RefreshTokenView(APIView):
         """
         Should return access_token
         """
-        claim = JWTUtils.get_claim_from_token(token=request.data.get('refresh_token', None))
-        if not claim:
+        claim = Claim.from_token(token=request.data.get('refresh_token', None))
+        if not claim.user_id:
             raise PermissionDenied()
-        principal_id = claim['principal_id']
-        access_token = JWTUtils.get_access_token(principal_id=principal_id)
+
+        # TODO: should check if account is disabled
+        access_token = claim.to_token(exp_seconds=600)
         return Response({ 'access_token' : access_token })
 
 class SwitchWorkspaceView(APIView):
     def post(self, request):
         refresh_token = request.data.get('refresh_token')
         workspace_id = request.data.get('workspace_id')
-        claim = JWTUtils.get_claim_from_token(token=refresh_token)
-        if not claim:
+        claim = Claim.from_token(token=refresh_token)
+        if not claim.user_id:
             raise PermissionDenied()
-        principal = Principal.objects.get(id=claim['principal_id'])
+        principal = Principal.objects.get(id=claim.principal_id)
         workspace = Workspace.objects.get(id=workspace_id)
         account = Account.objects.get(workspace=workspace, user=principal.account.user)
-        (principal, created) = Principal.objects.get_or_create(account=account, tpa=ThirdPartyApp.objects.get(id=AuthUtils.get_current_tpa_id()), roles=account.roles)
-        refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
-        access_token = JWTUtils.get_access_token(principal_id=principal.id)
+        (principal, created) = Principal.objects.get_or_create(account=account, tpa=ThirdPartyApp.objects.get(id=claim.tpa_id), roles=account.roles)
+        claim1 = Claim(principal_id=principal.id, user_id=principal.account.user.id, account_id=principal.account.id, workspace_id=principal.account.workspace.id, roles=principal.roles, tpa_id=principal.tpa.id)
+        refresh_token = claim1.to_token(exp_seconds=7*24*3600)
+        access_token = claim1.to_token(exp_seconds=600)
         return Response({ 'refresh_token': refresh_token, 'access_token': access_token })
 
 class OAuth2Authorize(OAuth2Authorize):
     def get(self, request):
         logger.info('request_params %s', request.query_params)
         request.query_params._mutable = True
-        request.query_params['workspace_id'] = AuthUtils.get_current_workspace_id()
-        request.query_params['account_id'] = AuthUtils.get_current_account_id()
+        request.query_params['workspace_id'] = request.claim.workspace_id
+        request.query_params['account_id'] = request.claim.account_id
         request.query_params._mutable = False
         return super().get(request)
 
 class OAuthToken(OAuth2Authorize):
     pass
 
-# TODO: don't expose this externally - security hole
-# class JwtEncode(APIView):
-#     def post(self, request):
-#         claim = request.data.get('claim')
-#         exp_seconds = request.data.get('exp_seconds', 3600)
-#         jwt = JWTUtils.get_token_from_claim(claim=claim, exp_seconds=exp_seconds)
-#         return Response({ "jwt" : jwt})
-
 class JwtDecode(APIView):
     def post(self, request):
         jwt = request.data['jwt']
-        claim = JWTUtils.get_claim_from_token(token=jwt)
-        return Response({ 'claim' : claim })
+        claim = Claim.from_token(token=jwt)
+        return Response({ 'claim' : claim.__dict__ })

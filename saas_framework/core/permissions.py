@@ -5,8 +5,6 @@ import re
 
 from rest_framework.permissions import BasePermission
 
-from saas_framework.core.auth_utils import AuthUtils
-
 logger = logging.getLogger(__name__)
 
 # Example permissions - please extend to new roles
@@ -50,7 +48,7 @@ class RolePolicyPermission(BasePermission):
         if re.search(self.always_allowed_regex, path):
             return True
 
-        roles = AuthUtils.get_current_roles()
+        roles = request.claim.roles
 
         if not roles:
             return False

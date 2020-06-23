@@ -1,6 +1,5 @@
 import logging
-from saas_framework.core.jwt import JWTUtils
-from saas_framework.core.auth_utils import AuthUtils
+from saas_framework.core.claim import Claim
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +16,9 @@ class AuthMiddleware:
 
         if 'HTTP_AUTHORIZATION' in request.META and len(request.META['HTTP_AUTHORIZATION']) > 7:
             access_token = request.META['HTTP_AUTHORIZATION'][7:]
-            claim = JWTUtils.get_claim_from_token(token=access_token)
-            AuthUtils.set_current_claim(claim=claim)
+            claim = Claim.from_token(token=access_token)
+            logger.info('claim = %s', claim)
+            request.claim = claim
 
         response = self.get_response(request)
 

@@ -1,15 +1,18 @@
 import logging
-from saas_framework.core.tpas.models import AccountThirdPartyApp, ThirdPartyApp
-from saas_framework.core.tpas.serializers import AccountThirdPartyAppSerializer, ThirdPartyAppSerializer
-from rest_framework import viewsets
-from rest_framework.response import Response
-from saas_framework.core.jwt import JWTUtils
-from saas_framework.core.accounts.models import Account
-from rest_framework.exceptions import PermissionDenied
-from saas_framework.core.workspaces.models import Workspace
+
 from django.contrib.auth.hashers import make_password
-from saas_framework.core.principals.models import Principal
+from rest_framework import viewsets
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from saas_framework.core.accounts.models import Account
+from saas_framework.core.claim import Claim
+from saas_framework.core.principals.models import Principal
+from saas_framework.core.tpas.models import AccountThirdPartyApp, ThirdPartyApp
+from saas_framework.core.tpas.serializers import (
+    AccountThirdPartyAppSerializer, ThirdPartyAppSerializer)
+from saas_framework.core.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +36,8 @@ class OAuth2Authorize(APIView):
             raise PermissionDenied()
         roles = scope
         atpa = AccountThirdPartyApp.objects.create(workspace=workspace, tpa=tpa, account=account, roles=roles)
-        claim = {
-            'atpa_id' : atpa.id
-        }
-        code = JWTUtils.get_token_from_claim(claim=claim, exp_seconds=3600)
+        claim = Claim(atpa_id=atpa.id)
+        code = claim.to_token(exp_seconds=300)
         return redirect_uri + f'?code={code}&state={state}'
 
     def get(self, request):
@@ -58,27 +59,29 @@ class OAuth2Token(APIView):
         if tpa.secret != client_secret:
             logger.info('secrets dont match')
             raise PermissionDenied()
-        claim = JWTUtils.get_claim_from_token(token=code)
+        claim = Claim.from_token(token=code)
         logger.info('claim = %s', claim)
-        atpa_id = claim['atpa_id']
+        atpa_id = claim.atpa_id
         atpa = AccountThirdPartyApp.objects.get(id=atpa_id)
         assert tpa == atpa.tpa
         (principal, created) = Principal.objects.get_or_create(account=atpa.account, tpa=atpa.tpa, roles=atpa.roles)
-        refresh_token = JWTUtils.get_refresh_token(principal_id=principal.id)
-        access_token = JWTUtils.get_access_token(principal_id=principal.id)
+        claim = Claim(user_id=atpa.account.user.id, workspace_id=atpa.account.workspace.id, tpa_id=atpa.tpa.id, account_id=atpa.account.id, principal_id=principal.id, roles=atpa.roles)
+        refresh_token = claim.to_token(exp_seconds=30*24*3600) # consider 10 years
+        access_token = claim.to_token(exp_seconds=3600)
         return (refresh_token, access_token)
 
     def process_refresh_token(self, client_id, client_secret, refresh_token):
         tpa = ThirdPartyApp.objects.get(id=client_id)
         if tpa.secret != make_password(client_secret):
             raise PermissionDenied()
-        claim = JWTUtils.get_claim_from_token(token=refresh_token)
-        if not claim:
+        claim = Claim.from_token(token=refresh_token)
+        if not claim.user_id:
             raise PermissionDenied()
-        principal_id = claim['principal_id']
+        principal_id = claim.principal_id
         principal = Principal.objects.get(id=principal_id)
         assert principal.tpa == tpa
-        access_token = JWTUtils.get_access_token(principal_id=principal_id)
+        claim1 = Claim(principal_id=principal.id, user_id=principal.user.id, workspace_id=principal.account.workspace.id, account_id=principal.account.id, tpa_id=principal.tpa.id, roles=principal.roles)
+        access_token = claim1.to_token(exp_seconds=3600)
         return (refresh_token, access_token)
 
     def post(self, request):

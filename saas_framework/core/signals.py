@@ -11,7 +11,6 @@ from django.dispatch import receiver
 
 from saas_framework.attachments.models import Attachment
 from saas_framework.comments.models import Comment
-from saas_framework.core.auth_utils import AuthUtils
 from saas_framework.core.workspace_membership.models import WorkspaceMembership
 from saas_framework.tags.models import Tag
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -56,12 +55,12 @@ class ChangeHandler:
     def post_save_callback(cls, sender, instance, created, **kwargs):
         if sender in cls.track_models:
             j = ChangeHandler.__instance_to_json(instance)
-            logger.info('subject %s saved model %s instance %s created %s kwargs %s', 
-            AuthUtils.get_current_principal_id(), sender, j, created, kwargs)
+            logger.info('model %s instance %s created %s kwargs %s', 
+            sender, j, created, kwargs)
 
     @classmethod
     def post_delete_callback(cls, sender, instance, **kwargs):
         if sender in cls.track_models:
             j = ChangeHandler.__instance_to_json(instance)
-            logger.info('subject %s deleted model %s instance %s kwargs %s', 
-            AuthUtils.get_current_principal_id(), sender, j, kwargs)
+            logger.info('deleted model %s instance %s kwargs %s', 
+            sender, j, kwargs)
