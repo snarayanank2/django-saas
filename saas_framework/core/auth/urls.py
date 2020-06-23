@@ -8,6 +8,6 @@ urlpatterns = [
     path('switch_workspace/', views.SwitchWorkspaceView.as_view()),
     path('o/authorize/', views.OAuth2Authorize.as_view()),
     path('o/token/', views.OAuth2Token.as_view()),
-    path('jwt/encode/', views.JwtEncode().as_view()),
+#    path('jwt/encode/', views.JwtEncode().as_view()),
     path('jwt/decode/', views.JwtDecode().as_view()),
 ]

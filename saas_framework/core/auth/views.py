@@ -100,12 +100,13 @@ class OAuth2Authorize(OAuth2Authorize):
 class OAuthToken(OAuth2Authorize):
     pass
 
-class JwtEncode(APIView):
-    def post(self, request):
-        claim = request.data.get('claim')
-        exp_seconds = request.data.get('exp_seconds', 3600)
-        jwt = JWTUtils.get_token_from_claim(claim=claim, exp_seconds=exp_seconds)
-        return Response({ "jwt" : jwt})
+# TODO: don't expose this externally - security hole
+# class JwtEncode(APIView):
+#     def post(self, request):
+#         claim = request.data.get('claim')
+#         exp_seconds = request.data.get('exp_seconds', 3600)
+#         jwt = JWTUtils.get_token_from_claim(claim=claim, exp_seconds=exp_seconds)
+#         return Response({ "jwt" : jwt})
 
 class JwtDecode(APIView):
     def post(self, request):
