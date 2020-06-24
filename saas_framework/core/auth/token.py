@@ -1,19 +1,24 @@
-from typing import Tuple
 import logging
+from typing import Tuple
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import (AuthenticationFailed,
+                                       PermissionDenied)
 
 from saas_framework.core.accounts.models import Account
+from saas_framework.core.auth.claim import Claim
 from saas_framework.core.principals.models import Principal
 from saas_framework.core.tpas.models import ThirdPartyApp
 from saas_framework.core.workspaces.models import Workspace
-from saas_framework.core.auth.claim import Claim
 
 logger = logging.getLogger(__name__)
 
 class TokenUtils:
+    REFRESH_TOKEN_EXPIRY_SEC = 30*24*3600
+    ACCESS_TOKEN_EXPIRY_SEC = 30
 
     @staticmethod
     def signin(email, password, app_name) -> Tuple[str, str]:
@@ -25,8 +30,8 @@ class TokenUtils:
         # log into the oldest workspace by default
         (principal, created) = Principal.objects.get_or_create(account=account, tpa=tpa, roles=account.roles)
         claim = Claim(user_id=user.id, workspace_id=account.workspace.id, principal_id=principal.id, tpa_id=tpa.id, account_id=account.id, roles=account.roles)
-        refresh_token = claim.to_token(exp_seconds=7*24*3600)
-        access_token = claim.to_token(exp_seconds=600)
+        refresh_token = claim.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC)
+        access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
 
     @staticmethod
@@ -39,8 +44,8 @@ class TokenUtils:
         account = Account.objects.create(user=user, workspace=workspace, roles='common,admin')
         (principal, created) = Principal.objects.get_or_create(workspace=account.workspace, user=account.user, tpa=tpa)
         claim = Claim(user_id=user.id, workspace_id=workspace.id, principal_id=principal.id, tpa_id=tpa.id, account_id=account.id, roles=account.roles)
-        refresh_token = claim.to_token(exp_seconds=7*24*3600)
-        access_token = claim.to_token(exp_seconds=600)
+        refresh_token = claim.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC)
+        access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
 
     @staticmethod
@@ -50,7 +55,7 @@ class TokenUtils:
             raise PermissionDenied()
 
         # TODO: should check if account is disabled
-        access_token = claim.to_token(exp_seconds=600)
+        access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return access_token
 
     @staticmethod
@@ -59,12 +64,16 @@ class TokenUtils:
         if not claim.user_id:
             raise PermissionDenied()
         principal = Principal.objects.get(id=claim.principal_id)
-        workspace = Workspace.objects.get(id=workspace_id)
+        try:
+            workspace = Workspace.objects.get(id=workspace_id)
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
+
         account = Account.objects.get(workspace=workspace, user=principal.account.user)
         (principal, created) = Principal.objects.get_or_create(account=account, tpa=ThirdPartyApp.objects.get(id=claim.tpa_id), roles=account.roles)
         claim1 = Claim(principal_id=principal.id, user_id=principal.account.user.id, account_id=principal.account.id, workspace_id=principal.account.workspace.id, roles=principal.roles, tpa_id=principal.tpa.id)
-        refresh_token = claim1.to_token(exp_seconds=7*24*3600)
-        access_token = claim1.to_token(exp_seconds=600)
+        refresh_token = claim1.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC)
+        access_token = claim1.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
 
     @staticmethod
@@ -94,8 +103,8 @@ class TokenUtils:
         assert tpa == atpa.tpa
         (principal, created) = Principal.objects.get_or_create(account=atpa.account, tpa=atpa.tpa, roles=atpa.roles)
         claim1 = Claim(user_id=atpa.account.user.id, workspace_id=atpa.account.workspace.id, tpa_id=atpa.tpa.id, account_id=atpa.account.id, principal_id=principal.id, roles=atpa.roles)
-        refresh_token = claim1.to_token(exp_seconds=30*24*3600) # consider 10 years
-        access_token = claim1.to_token(exp_seconds=3600)
+        refresh_token = claim1.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC) # consider 10 years
+        access_token = claim1.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
 
     @staticmethod
@@ -110,5 +119,5 @@ class TokenUtils:
         principal = Principal.objects.get(id=principal_id)
         assert principal.tpa == tpa
         claim1 = Claim(principal_id=principal.id, user_id=principal.user.id, workspace_id=principal.account.workspace.id, account_id=principal.account.id, tpa_id=principal.tpa.id, roles=principal.roles)
-        access_token = claim1.to_token(exp_seconds=600)
+        access_token = claim1.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)

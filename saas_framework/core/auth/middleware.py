@@ -19,6 +19,8 @@ class AuthMiddleware:
             claim = Claim.from_token(token=access_token)
             logger.info('claim = %s', claim)
             request.claim = claim
+        else:
+            request.claim = Claim.empty()
 
         response = self.get_response(request)
 

@@ -1,17 +1,18 @@
 import logging
 
-from rest_framework import viewsets
-from saas_framework.core.workspaces.models import Workspace
-from saas_framework.core.workspace_membership.models import WorkspaceMembership
-from saas_framework.core.workspaces.serializers import WorkspaceSerializer
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.expressions import Exists, OuterRef
-from saas_framework.core.principals.models import Principal
-from django.utils import timezone
-from rest_framework.response import Response
-from rest_framework.decorators import action
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.expressions import Exists, OuterRef
+from django.utils import timezone
+from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
+from rest_framework.response import Response
+
+from saas_framework.core.principals.models import Principal
+from saas_framework.core.workspace_membership.models import WorkspaceMembership
+from saas_framework.core.workspaces.models import Workspace
+from saas_framework.core.workspaces.serializers import WorkspaceSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -42,4 +43,3 @@ class WorkspaceMembershipModelViewSetMixin:
         return super().get_queryset().filter(
             Exists(WorkspaceMembership.objects.filter(object_id=OuterRef('pk'), workspace=self.request.claim.workspace_id, deleted_at__isnull=True)),
         ).order_by('id')
-

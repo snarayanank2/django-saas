@@ -30,7 +30,7 @@ class Claim:
             return claim
         except Exception as e:
             logger.error('unable to extract claim')
-            return __empty_claim
+            return Claim.empty()
 
     def to_token(self, exp_seconds):
         claim_d = {
@@ -49,4 +49,6 @@ class Claim:
         encoded = jwt.encode(payload, Claim.secret_key, algorithm='HS256')
         return str(encoded, 'utf8')
 
-__empty_claim = Claim()
+    @staticmethod
+    def empty():
+        return Claim()
