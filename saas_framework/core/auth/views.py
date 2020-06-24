@@ -66,7 +66,7 @@ class OAuth2Token(APIView):
         assert grant_type in ['authorization_code', 'refresh_token']
         if grant_type == 'authorization_code':
             code = request.data.get('code')
-            (refresh_token, access_token) = TupleUtils.oauth2_refresh_token(client_id=client_id, client_secret=client_secret, code=code)
+            (refresh_token, access_token) = TokenUtils.oauth2_refresh_token(client_id=client_id, client_secret=client_secret, code=code)
         else:
-            (refresh_token, access_token) = TupleUtils.oauth2_access_token(client_id=client_id, client_secret=client_secret, refresh_token=refresh_token)
+            (refresh_token, access_token) = TokenUtils.oauth2_access_token(client_id=client_id, client_secret=client_secret, refresh_token=refresh_token)
         return Response({ 'refresh_token' : refresh_token, 'access_token' : access_token })
