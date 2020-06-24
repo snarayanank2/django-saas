@@ -55,12 +55,10 @@ class ChangeHandler:
     def post_save_callback(cls, sender, instance, created, **kwargs):
         if sender in cls.track_models:
             j = ChangeHandler.__instance_to_json(instance)
-            logger.info('model %s instance %s created %s kwargs %s', 
-            sender, j, created, kwargs)
+            logger.info('model %s instance %s created %s kwargs %s', sender, j, created, kwargs)
 
     @classmethod
     def post_delete_callback(cls, sender, instance, **kwargs):
         if sender in cls.track_models:
             j = ChangeHandler.__instance_to_json(instance)
-            logger.info('deleted model %s instance %s kwargs %s', 
-            sender, j, kwargs)
+            logger.info('deleted model %s instance %s kwargs %s', sender, j, kwargs)
