@@ -22,3 +22,4 @@ dist/
 load.py
 *.jpeg
 *.png
+.coverage

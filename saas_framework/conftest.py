@@ -38,11 +38,3 @@ def django_db_setup(django_db_setup, django_db_blocker):
     logger.info('setting up db')
     with django_db_blocker.unblock():
         load()
-
-def test_num_users(db):
-    num_users = User.objects.all().count()
-    assert num_users == 10
-
-def test_num_workspaces(db):
-    num = Workspace.objects.all().count()
-    assert num == 10
