@@ -12,6 +12,7 @@ from saas_framework.core.principals.models import Principal
 from saas_framework.core.tpas.models import ThirdPartyApp
 from saas_framework.core.workspace_membership.models import WorkspaceMembership
 from saas_framework.core.workspaces.models import Workspace
+from django.test import Client
 
 logger = logging.getLogger(__name__)
 
@@ -44,5 +45,17 @@ def django_db_setup(django_db_setup, django_db_blocker, django_db_modify_db_sett
     logger.info('setting up db reuse = %s', django_db_keepdb)
     # logger.info("DATABASES = %s", settings.DATABASES)
     # logger.info("DEFAULT_FILE_STORAGE = %s", settings.DEFAULT_FILE_STORAGE)
-    with django_db_blocker.unblock():
-        load()
+    if not django_db_keepdb:
+        with django_db_blocker.unblock():
+            load()
+
+@pytest.fixture
+def aclient(db, client):
+    res = client.post('/auth/basic/signin/', data={
+	    "email": "elonmusk0@yahoo.com",
+	    "password": "password123"
+    }).json()
+    access_token = res['access_token']
+    authorization = f'Bearer {access_token}'
+    s = Client(HTTP_AUTHORIZATION=authorization)
+    return s

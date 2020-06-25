@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class TokenUtils:
     REFRESH_TOKEN_EXPIRY_SEC = 30*24*3600
-    ACCESS_TOKEN_EXPIRY_SEC = 30
+    ACCESS_TOKEN_EXPIRY_SEC = 600
 
     @staticmethod
     def signin(email, password, app_name) -> Tuple[str, str]:
