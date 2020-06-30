@@ -27,7 +27,5 @@ def test_refresh_token_fail(u1client):
     data = res.json()
     assert 'Unauthorized' in data['detail']
 
-def test_switch_workspace(u1client):
-    pass
 
 
