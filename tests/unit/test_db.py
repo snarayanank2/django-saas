@@ -7,6 +7,6 @@ logger = logging.getLogger(__name__)
 
 def test_user_count(db):
     num_users = User.objects.all().count()
-    assert num_users == 10
+    assert num_users == 3
 
 

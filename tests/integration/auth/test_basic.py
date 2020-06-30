@@ -6,8 +6,8 @@ logger = logging.getLogger(__name__)
 
 def test_signin(db, client):
     res = client.post('/auth/basic/signin/', data={
-	    "email": "elonmusk0@yahoo.com",
-	    "password": "password123"
+	    'email': 'u1@gmail.com',
+	    'password': 'password123'
     })
     assert res.status_code == 200
     data = res.json()
@@ -15,8 +15,8 @@ def test_signin(db, client):
 
 def test_signin_fail(db, client):
     res = client.post('/auth/basic/signin/', data={
-	    "email": "elonmusk0@yahoo.com",
-	    "password": "password124"
+	    'email': 'u1@gmail.com',
+	    'password': 'password124'
     })
     assert res.status_code == 401
     data = res.json()
