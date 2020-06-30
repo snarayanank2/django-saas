@@ -4,15 +4,6 @@ import pytest
 
 logger = logging.getLogger(__name__)
 
-def assert_access_token(access_token, workspace_id=None, user_id=None):
-    payload = jwt.decode(access_token, verify=False)
-    claim = payload['claim']
-    if workspace_id is not None:
-        assert claim['workspace_id'] == workspace_id
-    if user_id is not None:
-        assert claim['user_id'] == user_id
-
-
 def test_signin(db, client):
     res = client.post('/auth/basic/signin/', data={
 	    'email': 'u1@gmail.com',
