@@ -17,7 +17,6 @@ class AuthMiddleware:
         if 'HTTP_AUTHORIZATION' in request.META and len(request.META['HTTP_AUTHORIZATION']) > 7:
             access_token = request.META['HTTP_AUTHORIZATION'][7:]
             claim = Claim.from_token(token=access_token)
-            logger.info('claim = %s', claim)
             request.claim = claim
         else:
             request.claim = Claim.empty()

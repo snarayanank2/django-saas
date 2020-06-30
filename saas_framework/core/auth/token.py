@@ -5,16 +5,21 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.exceptions import (AuthenticationFailed,
-                                       PermissionDenied)
+from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, ParseError, PermissionDenied
 
 from saas_framework.core.accounts.models import Account
 from saas_framework.core.auth.claim import Claim
 from saas_framework.core.principals.models import Principal
-from saas_framework.core.tpas.models import ThirdPartyApp
+from saas_framework.core.tpas.models import AccountThirdPartyApp, ThirdPartyApp
 from saas_framework.core.workspaces.models import Workspace
+from rest_framework.exceptions import APIException
 
 logger = logging.getLogger(__name__)
+
+class UnAuthorizedException(APIException):
+    status_code = 401
+    default_detail = 'Unauthorized'
+    default_code = 'unauthorized'
 
 class TokenUtils:
     REFRESH_TOKEN_EXPIRY_SEC = 30*24*3600
@@ -22,9 +27,10 @@ class TokenUtils:
 
     @staticmethod
     def signin(email, password, app_name) -> Tuple[str, str]:
+        user = None
         user = authenticate(username=email, password=password)
         if user is None:
-            raise AuthenticationFailed()
+            raise UnAuthorizedException()
         tpa = ThirdPartyApp.objects.get(name=app_name)
         account = Account.objects.filter(user=user).order_by('id').all()[0]
         # log into the oldest workspace by default
@@ -37,7 +43,7 @@ class TokenUtils:
     @staticmethod
     def signup(email, first_name, last_name, password, app_name) -> Tuple[str, str]:
         if User.objects.filter(username=email).exists():
-            raise PermissionDenied()
+            raise UnAuthorizedException()
         user = User.objects.create(first_name=first_name, last_name=last_name, email=email, username=email, password=make_password(password))
         tpa = ThirdPartyApp.objects.get(name=app_name)
         workspace = Workspace.objects.create(name='Default')
@@ -52,7 +58,7 @@ class TokenUtils:
     def access_token(refresh_token) -> str:
         claim = Claim.from_token(token=refresh_token)
         if not claim.user_id:
-            raise PermissionDenied()
+            raise UnAuthorizedException()
 
         # TODO: should check if account is disabled
         access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
@@ -62,12 +68,12 @@ class TokenUtils:
     def switch_workspace(refresh_token, workspace_id) -> Tuple[str, str]:
         claim = Claim.from_token(token=refresh_token)
         if not claim.user_id:
-            raise PermissionDenied()
+            raise UnAuthorizedException()
         principal = Principal.objects.get(id=claim.principal_id)
         try:
             workspace = Workspace.objects.get(id=workspace_id)
         except ObjectDoesNotExist:
-            raise PermissionDenied()
+            raise NotFound()
 
         account = Account.objects.get(workspace=workspace, user=principal.account.user)
         (principal, created) = Principal.objects.get_or_create(account=account, tpa=ThirdPartyApp.objects.get(id=claim.tpa_id), roles=account.roles)
@@ -79,7 +85,7 @@ class TokenUtils:
     @staticmethod
     def oauth2_code(claim, client_id, scope) -> str:
         if not claim.user_id:
-            raise PermissionDenied()
+            raise UnAuthorizedException()
         workspace = Workspace.objects.get(id=claim.workspace_id)
         account = Account.objects.get(id=claim.account_id)
         tpa = ThirdPartyApp.objects.get(id=client_id)
@@ -96,7 +102,7 @@ class TokenUtils:
     def oauth2_refresh_token(client_id, client_secret, code) -> Tuple[str, str]:
         tpa = ThirdPartyApp.objects.get(id=client_id)
         if tpa.secret != client_secret:
-            raise PermissionDenied()
+            raise UnAuthorizedException()
         claim = Claim.from_token(token=code)
         atpa_id = claim.atpa_id
         atpa = AccountThirdPartyApp.objects.get(id=atpa_id)
@@ -111,10 +117,10 @@ class TokenUtils:
     def oauth2_access_token(client_id, client_secret, refresh_token) -> Tuple[str, str]:
         tpa = ThirdPartyApp.objects.get(id=client_id)
         if tpa.secret != make_password(client_secret):
-            raise PermissionDenied()
+            raise UnAuthorizedException()
         claim = Claim.from_token(token=refresh_token)
         if not claim.user_id:
-            raise PermissionDenied()
+            raise UnAuthorizedException()
         principal_id = claim.principal_id
         principal = Principal.objects.get(id=principal_id)
         assert principal.tpa == tpa

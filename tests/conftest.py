@@ -37,12 +37,7 @@ def load():
 
 @pytest.fixture(scope='session')
 def django_db_setup(django_db_setup, django_db_blocker, django_db_modify_db_settings, django_db_keepdb):
-    # from django.conf import settings
-    # settings.DATABASES['default'] = {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': 'db.sqlite3'
-    # }
-    logger.info('setting up db reuse = %s', django_db_keepdb)
+    # logger.info('setting up db reuse = %s', django_db_keepdb)
     # logger.info("DATABASES = %s", settings.DATABASES)
     # logger.info("DEFAULT_FILE_STORAGE = %s", settings.DEFAULT_FILE_STORAGE)
     if not django_db_keepdb:

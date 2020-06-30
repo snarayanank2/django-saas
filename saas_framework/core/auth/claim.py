@@ -29,7 +29,7 @@ class Claim:
             claim = Claim(**(decoded['claim']))
             return claim
         except Exception as e:
-            logger.error('unable to extract claim')
+#            logger.error('unable to extract claim')
             return Claim.empty()
 
     def to_token(self, exp_seconds):
