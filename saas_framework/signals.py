@@ -11,7 +11,7 @@ from django.dispatch import receiver
 
 from saas_framework.attachments.models import Attachment
 from saas_framework.comments.models import Comment
-from saas_framework.core.workspace_membership.models import WorkspaceMembership
+from saas_framework.workspace_membership.models import WorkspaceMembership
 from saas_framework.tags.models import Tag
 from django.contrib.contenttypes.fields import GenericForeignKey
 

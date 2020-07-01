@@ -1,9 +1,9 @@
 import logging
 
 from rest_framework import serializers
-from saas_framework.core.accounts.serializers import AccountSerializer
-from saas_framework.core.tpas.serializers import ThirdPartyAppSerializer
-from saas_framework.core.principals.models import Principal
+from saas_framework.accounts.serializers import AccountSerializer
+from saas_framework.tpas.serializers import ThirdPartyAppSerializer
+from saas_framework.principals.models import Principal
 
 logger = logging.getLogger(__name__)
 

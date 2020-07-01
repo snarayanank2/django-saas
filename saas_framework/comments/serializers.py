@@ -8,7 +8,7 @@ from saas_framework.tags.models import Tag
 from saas_framework.tags.serializers import TagSerializer
 from saas_framework.attachments.models import Attachment
 from saas_framework.comments.models import Comment
-from saas_framework.core.workspaces.models import Workspace
+from saas_framework.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 

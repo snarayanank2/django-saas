@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from saas_framework.attachments.models import Attachment
 from rest_framework.relations import PrimaryKeyRelatedField
-from saas_framework.core.workspaces.models import Workspace
+from saas_framework.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 

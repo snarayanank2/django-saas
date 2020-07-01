@@ -9,11 +9,11 @@ from django.contrib.auth.models import User
 from django.test import Client
 from django_q.models import Schedule
 
-from saas_framework.core.accounts.models import Account
-from saas_framework.core.principals.models import Principal
-from saas_framework.core.tpas.models import ThirdPartyApp
-from saas_framework.core.workspace_membership.models import WorkspaceMembership
-from saas_framework.core.workspaces.models import Workspace
+from saas_framework.accounts.models import Account
+from saas_framework.principals.models import Principal
+from saas_framework.tpas.models import ThirdPartyApp
+from saas_framework.workspace_membership.models import WorkspaceMembership
+from saas_framework.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 

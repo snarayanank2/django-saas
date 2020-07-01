@@ -1,7 +1,7 @@
 import logging
 
 from django.db import models
-from saas_framework.core.workspaces.models import Workspace, BaseModel
+from saas_framework.workspaces.models import Workspace, BaseModel
 
 logger = logging.getLogger(__name__)
 

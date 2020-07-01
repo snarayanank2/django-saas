@@ -9,10 +9,10 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
-from saas_framework.core.principals.models import Principal
-from saas_framework.core.workspace_membership.models import WorkspaceMembership
-from saas_framework.core.workspaces.models import Workspace
-from saas_framework.core.workspaces.serializers import WorkspaceSerializer
+from saas_framework.principals.models import Principal
+from saas_framework.workspace_membership.models import WorkspaceMembership
+from saas_framework.workspaces.models import Workspace
+from saas_framework.workspaces.serializers import WorkspaceSerializer
 
 logger = logging.getLogger(__name__)
 

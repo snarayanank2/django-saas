@@ -7,11 +7,11 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, ParseError, PermissionDenied
 
-from saas_framework.core.accounts.models import Account
-from saas_framework.core.auth.claim import Claim
-from saas_framework.core.principals.models import Principal
-from saas_framework.core.tpas.models import AccountThirdPartyApp, ThirdPartyApp
-from saas_framework.core.workspaces.models import Workspace
+from saas_framework.accounts.models import Account
+from saas_framework.auth.claim import Claim
+from saas_framework.principals.models import Principal
+from saas_framework.tpas.models import AccountThirdPartyApp, ThirdPartyApp
+from saas_framework.workspaces.models import Workspace
 from rest_framework.exceptions import APIException, NotFound
 
 logger = logging.getLogger(__name__)

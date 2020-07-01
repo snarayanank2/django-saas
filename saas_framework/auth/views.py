@@ -4,8 +4,8 @@ from rest_framework.exceptions import AuthenticationFailed, ParseError, Permissi
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from saas_framework.core.auth.token import TokenUtils
-from saas_framework.core.auth.claim import Claim
+from saas_framework.auth.token import TokenUtils
+from saas_framework.auth.claim import Claim
 
 logger = logging.getLogger(__name__)
 

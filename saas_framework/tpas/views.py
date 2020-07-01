@@ -6,13 +6,13 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from saas_framework.core.accounts.models import Account
-from saas_framework.core.auth.claim import Claim
-from saas_framework.core.principals.models import Principal
-from saas_framework.core.tpas.models import AccountThirdPartyApp, ThirdPartyApp
-from saas_framework.core.tpas.serializers import (
+from saas_framework.accounts.models import Account
+from saas_framework.auth.claim import Claim
+from saas_framework.principals.models import Principal
+from saas_framework.tpas.models import AccountThirdPartyApp, ThirdPartyApp
+from saas_framework.tpas.serializers import (
     AccountThirdPartyAppSerializer, ThirdPartyAppSerializer)
-from saas_framework.core.workspaces.models import Workspace
+from saas_framework.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 
