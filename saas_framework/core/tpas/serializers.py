@@ -19,11 +19,11 @@ class ThirdPartyAppSerializer(serializers.ModelSerializer):
     secret = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
-#        validated_data['secret'] = make_password(validated_data['secret'])
+        validated_data['secret'] = make_password(validated_data['secret'])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-#        validated_data.pop('secret', None)
+        validated_data.pop('secret', None)
         return super.update(instance, validated_data)
 
     class Meta:

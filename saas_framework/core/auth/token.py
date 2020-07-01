@@ -2,7 +2,7 @@ import logging
 from typing import Tuple
 
 from django.contrib.auth import authenticate
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, ParseError, PermissionDenied
@@ -12,7 +12,7 @@ from saas_framework.core.auth.claim import Claim
 from saas_framework.core.principals.models import Principal
 from saas_framework.core.tpas.models import AccountThirdPartyApp, ThirdPartyApp
 from saas_framework.core.workspaces.models import Workspace
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, NotFound
 
 logger = logging.getLogger(__name__)
 
@@ -94,14 +94,14 @@ class TokenUtils:
             raise PermissionDenied()
         roles = scope
         atpa = AccountThirdPartyApp.objects.create(workspace=workspace, tpa=tpa, account=account, roles=roles)
-        claim1 = Claim(atpa_id=atpa.id)
+        claim1 = Claim(atpa_id=atpa.id, tpa_id=tpa.id, workspace_id=workspace.id, account_id=account.id, user_id=account.user.id)
         code = claim1.to_token(exp_seconds=300)
         return code
 
     @staticmethod
     def oauth2_refresh_token(client_id, client_secret, code) -> Tuple[str, str]:
         tpa = ThirdPartyApp.objects.get(id=client_id)
-        if tpa.secret != client_secret:
+        if not check_password(client_secret, tpa.secret):
             raise UnAuthorizedException()
         claim = Claim.from_token(token=code)
         atpa_id = claim.atpa_id
@@ -116,7 +116,7 @@ class TokenUtils:
     @staticmethod
     def oauth2_access_token(client_id, client_secret, refresh_token) -> Tuple[str, str]:
         tpa = ThirdPartyApp.objects.get(id=client_id)
-        if tpa.secret != make_password(client_secret):
+        if not check_password(client_secret, tpa.secret):
             raise UnAuthorizedException()
         claim = Claim.from_token(token=refresh_token)
         if not claim.user_id:
@@ -124,6 +124,6 @@ class TokenUtils:
         principal_id = claim.principal_id
         principal = Principal.objects.get(id=principal_id)
         assert principal.tpa == tpa
-        claim1 = Claim(principal_id=principal.id, user_id=principal.user.id, workspace_id=principal.account.workspace.id, account_id=principal.account.id, tpa_id=principal.tpa.id, roles=principal.roles)
+        claim1 = Claim(principal_id=principal.id, user_id=principal.account.user.id, workspace_id=principal.account.workspace.id, account_id=principal.account.id, tpa_id=principal.tpa.id, roles=principal.roles)
         access_token = claim1.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)

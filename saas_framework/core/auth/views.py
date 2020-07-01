@@ -1,10 +1,11 @@
 import logging
 
-from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
+from rest_framework.exceptions import AuthenticationFailed, ParseError, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from saas_framework.core.auth.token import TokenUtils
+from saas_framework.core.auth.claim import Claim
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,8 @@ class OAuth2Authorize(APIView):
         claim = request.claim
         client_id = request.query_params.get('client_id')
         response_type = request.query_params.get('response_type')
-        assert response_type in ['code']
+        if response_type not in ['code']:
+            raise ParseError('Invalid response_type')
         state = request.query_params.get('state', '')
         redirect_uri = request.query_params.get('redirect_uri')
         scope = request.query_params.get('scope')
@@ -63,10 +65,12 @@ class OAuth2Token(APIView):
         client_id = request.data.get('client_id')
         client_secret = request.data.get('client_secret')
         grant_type = request.data.get('grant_type')
-        assert grant_type in ['authorization_code', 'refresh_token']
         if grant_type == 'authorization_code':
             code = request.data.get('code')
             (refresh_token, access_token) = TokenUtils.oauth2_refresh_token(client_id=client_id, client_secret=client_secret, code=code)
-        else:
+        elif grant_type == 'refresh_token':
+            refresh_token = request.data.get('refresh_token')
             (refresh_token, access_token) = TokenUtils.oauth2_access_token(client_id=client_id, client_secret=client_secret, refresh_token=refresh_token)
+        else:
+            raise ParseError('Invalid grant_type')
         return Response({ 'refresh_token' : refresh_token, 'access_token' : access_token })

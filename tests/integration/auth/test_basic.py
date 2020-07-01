@@ -1,6 +1,7 @@
 import logging
 import jwt
 import pytest
+from tests.utils import assert_claim
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +14,8 @@ def test_signin(db, client):
     data = res.json()
     access_token = data['access_token']
     refresh_token = data['refresh_token']
-    payload = jwt.decode(access_token, verify=False)
-    claim = payload['claim']
-    assert claim['workspace_id'] == 1
+    assert_claim(token=refresh_token, workspace_id=1, user_id=1)
+    assert_claim(token=access_token, workspace_id=1, user_id=1)
 
 def test_signin_fail(db, client):
     res = client.post('/auth/basic/signin/', data={
