@@ -10,4 +10,3 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
     queryset = Workspace.objects.all()
     serializer_class = WorkspaceSerializer
     ordering = 'created_at'
-

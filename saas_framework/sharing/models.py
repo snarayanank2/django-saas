@@ -15,6 +15,6 @@ class Sharing(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='+')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+', null=True)
     deleted_at = models.DateTimeField(blank=True, null=True)
-

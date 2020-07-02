@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from saas_framework.sharing.models import Sharing
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.serializers import WorkspaceSerializer
+from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,8 @@ class SharingModelViewSetMixin:
         obj = serializer.instance
         content_type = ContentType.objects.get_for_model(obj)
         workspace = Workspace.objects.get(id=self.request.claim.workspace_id)
-        wm = Sharing.objects.create(workspace=workspace, content_type=content_type, object_id=obj.id)
+        user = User.objects.get(id=self.request.claim.user_id)
+        wm = Sharing.objects.create(workspace=workspace, user=user, content_type=content_type, object_id=obj.id)
         return obj
 
     def perform_destroy(self, instance):
