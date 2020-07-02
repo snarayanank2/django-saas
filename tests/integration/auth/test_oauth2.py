@@ -4,8 +4,17 @@ import pytest
 import re
 from tests.utils import assert_claim, assert_success, assert_error
 from django.test import Client
+from saas_framework.auth.token import TokenUtils
 
 logger = logging.getLogger(__name__)
+
+@pytest.fixture
+def random_str1():
+    return 'b08b385a-bc65-11ea-80fb-02a694bae1aab9aa7f86-bc65-11ea-8718-02a694bae1aabea9279e-bc65-11ea-a6c7-02a694bae1aac40ad002-bc65-11ea-9728-02a694bae1aa'
+
+@pytest.fixture
+def random_str2():
+    return 'b08b385a-bc65-11ea-80fb-02a694bae1aab9aa7f86-bc65-11ea-8718-02a694bae1aabea9279e-bc65-11ea-a6c7-02a694bae1aac40ad002-bc65-11ea-9728-02a694bae1aa'
 
 def authorize(u1client):
     res = u1client.get('/auth/o/authorize/', data={'client_id': 2, 'response_type': 'code', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})    
