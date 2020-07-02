@@ -9,7 +9,6 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
-from saas_framework.principals.models import Principal
 from saas_framework.sharing.models import Sharing
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.serializers import WorkspaceSerializer
@@ -24,8 +23,7 @@ class SharingModelViewSetMixin:
         obj = serializer.instance
         content_type = ContentType.objects.get_for_model(obj)
         workspace = Workspace.objects.get(id=self.request.claim.workspace_id)
-        principal = Principal.objects.get(id=self.request.claim.principal_id)
-        wm = Sharing.objects.create(workspace=workspace, content_type=content_type, object_id=obj.id, created_by=principal)
+        wm = Sharing.objects.create(workspace=workspace, content_type=content_type, object_id=obj.id)
         return obj
 
     def perform_destroy(self, instance):

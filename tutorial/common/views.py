@@ -13,14 +13,14 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from saas_framework.accounts.models import Account
-from saas_framework.accounts.serializers import AccountSerializer
-from saas_framework.accounts.views import AccountViewSet
+from saas_framework.roles.models import Role
+from saas_framework.roles.serializers import RoleSerializer
+from saas_framework.roles.views import RoleViewSet
 from saas_framework.attachments.models import Attachment
 from saas_framework.attachments.views import AttachmentViewSet
 from saas_framework.comments.views import CommentViewSet
 from saas_framework.tags.views import TagViewSet
-from saas_framework.tpas.views import (AccountThirdPartyAppViewSet,
+from saas_framework.tpas.views import (ThirdPartyAppInstallViewSet,
                                        ThirdPartyAppViewSet)
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.views import WorkspaceViewSet
@@ -31,25 +31,20 @@ logger = logging.getLogger(__name__)
 class WorkspaceViewSet(WorkspaceViewSet):
     def get_queryset(self):
         return Workspace.objects.filter(
-                Exists(Account.objects.filter(workspace=OuterRef('pk'), user=self.request.claim.user_id))
+                Exists(Role.objects.filter(workspace=OuterRef('pk'), user=self.request.claim.user_id))
             ).order_by('-created_at')
 
     def create(self, request):
         res = super().create(request)
         workspace = Workspace.objects.get(id=res.data['id'])
-        account = Account.objects.create(workspace=workspace, user=User.objects.get(id=request.claim.user_id), roles='admin')
+        role = Role.objects.create(workspace=workspace, user=User.objects.get(id=request.claim.user_id), roles='admin,common')
         return res
 
-
-class AccountViewSet(AccountViewSet):
+class RoleViewSet(RoleViewSet):
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.claim.user_id).order_by('-created_at')
-
-    @action(detail=False, methods=['get'])
-    def me(self, request):
-        account = Account.objects.get(id=request.claim.account_id)
-        wus = AccountSerializer(instance=account)
-        return Response(wus.data)
+        workspace = Workspace.objects.get(id=self.request.claim.workspace_id)
+        user = User.objects.get(id=self.request.claim.user_id)
+        return super().get_queryset().filter(workspace=workspace, user=user).order_by('-created_at')
 
 class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
     def get_queryset(self):
@@ -59,9 +54,11 @@ class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
         request.data['user_id'] = request.claim.user_id
         return super().create(request)
 
-class AccountThirdPartyAppViewSet(AccountThirdPartyAppViewSet):
+class ThirdPartyAppInstallViewSet(ThirdPartyAppInstallViewSet):
     def get_queryset(self):
-        return super().get_queryset().filter(account=Account.objects.get(id=request.claim.account_id)).order_by('-created_at')
+        workspace = Workspace.objects.get(id=self.request.claim.workspace_id)
+        user = User.objects.get(id=self.request.claim.user_id)
+        return super().get_queryset().filter(workspace=workspace, user=user).order_by('-created_at')
 
 class AttachmentViewSet(SharingModelViewSetMixin, AttachmentViewSet):
     pass

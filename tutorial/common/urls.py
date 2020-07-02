@@ -4,7 +4,6 @@ from tutorial.common import views
 
 router = routers.DefaultRouter()
 router.register(r'workspaces', views.WorkspaceViewSet)
-router.register(r'accounts', views.AccountViewSet)
 router.register(r'tags', views.TagViewSet)
 router.register(r'comments', views.CommentViewSet)
 router.register(r'tpas', views.ThirdPartyAppViewSet)

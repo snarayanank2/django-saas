@@ -9,11 +9,10 @@ from django.contrib.auth.models import User
 from django.test import Client
 from django_q.models import Schedule
 
-from saas_framework.accounts.models import Account
-from saas_framework.principals.models import Principal
 from saas_framework.tpas.models import ThirdPartyApp
 from saas_framework.sharing.models import Sharing
 from saas_framework.workspaces.models import Workspace
+from saas_framework.roles.models import Role
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +25,10 @@ def load():
     w1 = Workspace.objects.create(name='workspace1')
     w2 = Workspace.objects.create(name='workspace2')
 
-    a1 = Account.objects.get_or_create(user=u1, workspace=w1, roles='admin,common')
-    a2 = Account.objects.get_or_create(user=u1, workspace=w2, roles='common')
-    a3 = Account.objects.get_or_create(user=u2, workspace=w2, roles='admin,common')
-    a4 = Account.objects.get_or_create(user=u3, workspace=w1, roles='common')
+    r1 = Role.objects.get_or_create(user=u1, workspace=w1, roles='admin,common')
+    r2 = Role.objects.get_or_create(user=u1, workspace=w2, roles='common')
+    r3 = Role.objects.get_or_create(user=u2, workspace=w2, roles='admin,common')
+    r4 = Role.objects.get_or_create(user=u3, workspace=w1, roles='common')
 
     tpa1 = ThirdPartyApp.objects.create(user=User.objects.get(id=1), name='webapp', secret=password, 
                 description='tpa1', enabled=True, redirect_uris='')

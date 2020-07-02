@@ -4,16 +4,17 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from saas_framework.principals.models import Principal
-from saas_framework.workspaces.models import BaseModel, Workspace
+from saas_framework.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 
-class Sharing(BaseModel):
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+class Sharing(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='+')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    created_by = models.ForeignKey(Principal, on_delete=models.CASCADE, related_name='+', null=True)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     deleted_at = models.DateTimeField(blank=True, null=True)
 

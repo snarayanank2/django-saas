@@ -7,10 +7,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, ParseError, PermissionDenied
 
-from saas_framework.accounts.models import Account
+from saas_framework.roles.models import Role
 from saas_framework.auth.claim import Claim
-from saas_framework.principals.models import Principal
-from saas_framework.tpas.models import AccountThirdPartyApp, ThirdPartyApp
+from saas_framework.tpas.models import ThirdPartyAppInstall, ThirdPartyApp
 from saas_framework.workspaces.models import Workspace
 from rest_framework.exceptions import APIException, NotFound
 
@@ -32,10 +31,10 @@ class TokenUtils:
         if user is None:
             raise UnAuthorizedException()
         tpa = ThirdPartyApp.objects.get(name=app_name)
-        account = Account.objects.filter(user=user).order_by('id').all()[0]
+        role = Role.objects.filter(user=user).order_by('id').all()[0]
         # log into the oldest workspace by default
-        (principal, created) = Principal.objects.get_or_create(account=account, tpa=tpa, roles=account.roles)
-        claim = Claim(user_id=user.id, workspace_id=account.workspace.id, principal_id=principal.id, tpa_id=tpa.id, account_id=account.id, roles=account.roles)
+        # TODO: have a default workspace
+        claim = Claim(user_id=user.id, workspace_id=role.workspace.id, tpa_id=tpa.id, roles=role.roles)
         refresh_token = claim.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC)
         access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
@@ -47,9 +46,8 @@ class TokenUtils:
         user = User.objects.create(first_name=first_name, last_name=last_name, email=email, username=email, password=make_password(password))
         tpa = ThirdPartyApp.objects.get(name=app_name)
         workspace = Workspace.objects.create(name='Default')
-        account = Account.objects.create(user=user, workspace=workspace, roles='common,admin')
-        (principal, created) = Principal.objects.get_or_create(workspace=account.workspace, user=account.user, tpa=tpa)
-        claim = Claim(user_id=user.id, workspace_id=workspace.id, principal_id=principal.id, tpa_id=tpa.id, account_id=account.id, roles=account.roles)
+        role = Role.objects.create(user=user, workspace=workspace, roles='common,admin')
+        claim = Claim(user_id=user.id, workspace_id=workspace.id, tpa_id=tpa.id, roles=role.roles)
         refresh_token = claim.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC)
         access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
@@ -60,7 +58,7 @@ class TokenUtils:
         if not claim.user_id:
             raise UnAuthorizedException()
 
-        # TODO: should check if account is disabled
+        # TODO: should check if role is disabled
         access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return access_token
 
@@ -69,15 +67,16 @@ class TokenUtils:
         claim = Claim.from_token(token=refresh_token)
         if not claim.user_id:
             raise UnAuthorizedException()
-        principal = Principal.objects.get(id=claim.principal_id)
+        user = User.objects.get(id=claim.user_id)
+        workspace = None
+        role = None
         try:
             workspace = Workspace.objects.get(id=workspace_id)
+            role = Role.objects.get(workspace=workspace, user=user)
         except ObjectDoesNotExist:
             raise NotFound()
 
-        account = Account.objects.get(workspace=workspace, user=principal.account.user)
-        (principal, created) = Principal.objects.get_or_create(account=account, tpa=ThirdPartyApp.objects.get(id=claim.tpa_id), roles=account.roles)
-        claim1 = Claim(principal_id=principal.id, user_id=principal.account.user.id, account_id=principal.account.id, workspace_id=principal.account.workspace.id, roles=principal.roles, tpa_id=principal.tpa.id)
+        claim1 = Claim(user_id=user.id, workspace_id=workspace.id, roles=role.roles, tpa_id=claim.tpa_id)
         refresh_token = claim1.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC)
         access_token = claim1.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
@@ -87,14 +86,15 @@ class TokenUtils:
         if not claim.user_id:
             raise UnAuthorizedException()
         workspace = Workspace.objects.get(id=claim.workspace_id)
-        account = Account.objects.get(id=claim.account_id)
+        user = User.objects.get(id=claim.user_id)
+        role = Role.objects.get(workspace=workspace, user=user)
         tpa = ThirdPartyApp.objects.get(id=client_id)
-        extra_roles = set(scope.split(',')) - set(account.roles.split(','))
+        extra_roles = set(scope.split(',')) - set(role.roles.split(','))
         if len(extra_roles) > 0:
             raise PermissionDenied()
         roles = scope
-        atpa = AccountThirdPartyApp.objects.create(workspace=workspace, tpa=tpa, account=account, roles=roles)
-        claim1 = Claim(atpa_id=atpa.id, tpa_id=tpa.id, workspace_id=workspace.id, account_id=account.id, user_id=account.user.id)
+        atpa = ThirdPartyAppInstall.objects.create(workspace=workspace, user=user, tpa=tpa, roles=roles)
+        claim1 = Claim(user_id=user.id, tpa_id=tpa.id, workspace_id=workspace.id, roles=roles)
         code = claim1.to_token(exp_seconds=300)
         return code
 
@@ -104,11 +104,15 @@ class TokenUtils:
         if not check_password(client_secret, tpa.secret):
             raise UnAuthorizedException()
         claim = Claim.from_token(token=code)
-        atpa_id = claim.atpa_id
-        atpa = AccountThirdPartyApp.objects.get(id=atpa_id)
-        assert tpa == atpa.tpa
-        (principal, created) = Principal.objects.get_or_create(account=atpa.account, tpa=atpa.tpa, roles=atpa.roles)
-        claim1 = Claim(user_id=atpa.account.user.id, workspace_id=atpa.account.workspace.id, tpa_id=atpa.tpa.id, account_id=atpa.account.id, principal_id=principal.id, roles=atpa.roles)
+        tpa = ThirdPartyApp.objects.get(id=claim.tpa_id)
+        workspace = Workspace.objects.get(id=claim.workspace_id)
+        user = User.objects.get(id=claim.user_id)
+        try:
+            atpa = ThirdPartyAppInstall.objects.get(workspace=workspace, user=user, tpa=tpa)
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
+
+        claim1 = Claim(user_id=user.id, workspace_id=workspace.id, tpa_id=tpa.id, roles=claim.roles)
         refresh_token = claim1.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC) # consider 10 years
         access_token = claim1.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
@@ -119,11 +123,5 @@ class TokenUtils:
         if not check_password(client_secret, tpa.secret):
             raise UnAuthorizedException()
         claim = Claim.from_token(token=refresh_token)
-        if not claim.user_id:
-            raise UnAuthorizedException()
-        principal_id = claim.principal_id
-        principal = Principal.objects.get(id=principal_id)
-        assert principal.tpa == tpa
-        claim1 = Claim(principal_id=principal.id, user_id=principal.account.user.id, workspace_id=principal.account.workspace.id, account_id=principal.account.id, tpa_id=principal.tpa.id, roles=principal.roles)
-        access_token = claim1.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
+        access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)

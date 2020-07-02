@@ -3,12 +3,14 @@ import logging
 from django.db import models
 from django.contrib.auth.models import User
 
-from saas_framework.workspaces.models import BaseModel, Workspace
-from saas_framework.accounts.models import Account
+from saas_framework.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)
 
-class ThirdPartyApp(BaseModel):
+class ThirdPartyApp(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     name = models.TextField()
     secret = models.TextField()
@@ -19,10 +21,13 @@ class ThirdPartyApp(BaseModel):
     class Meta:
         ordering = ['id']
 
-class AccountThirdPartyApp(BaseModel):
+class ThirdPartyAppInstall(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     tpa = models.ForeignKey(ThirdPartyApp, on_delete=models.CASCADE, related_name='+')
-    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='+')
     roles = models.TextField()
     class Meta:
         ordering = ['id']
