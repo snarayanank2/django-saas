@@ -6,6 +6,13 @@ things and we've tried to incorporate all of them so you can focus on user exper
 Warning: This is under active development and is not ready for production use. Needs a bunch
 of documentation as well. Contact siva@fylehq.com if you're interested in this.
 
+## Setup virtual environment
+
+```
+virtualenv venv --python=python3.7
+source venv/bin/activate
+pip install -r requirements
+```
 
 ## Run the migrations
 
