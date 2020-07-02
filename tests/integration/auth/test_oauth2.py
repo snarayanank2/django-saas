@@ -51,6 +51,11 @@ def test_refresh_token_fail_secret(u1client):
     res = u1client.post('/auth/o/token/', data={'client_id': 2, 'client_secret': 'blah', 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code'})
     assert_error(response=res, status_code=401, detail='Unauthorized')
 
+def test_refresh_token_fail_grant_type(u1client):
+    code = authorize(u1client=u1client)
+    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'client_secret': 'password123', 'code': code, 'state': 'yabba', 'grant_type': 'booya'})
+    assert_error(response=res, status_code=400, detail='Invalid')
+
 def test_access_token(u1client):
     code = authorize(u1client=u1client)
     refresh_token, access_token = tokens(u1client=u1client, code=code)

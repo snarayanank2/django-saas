@@ -28,13 +28,9 @@ class SharingModelViewSetMixin:
 
     def perform_destroy(self, instance):
         content_type = ContentType.objects.get_for_model(instance)
-        try:
-            wm = Sharing.objects.get(content_type=content_type, object_id=instance.id)
-        except ObjectDoesNotExist:
-            raise NotFound()
+        wm = Sharing.objects.get(content_type=content_type, object_id=instance.id)
         wm.deleted_at = timezone.now()
         wm.save()
-
 
     # by default only returns objects in this workspace
     def get_queryset(self):

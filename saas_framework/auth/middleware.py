@@ -27,7 +27,7 @@ class AuthMiddleware:
         # the view is called.
         return response
     
-    def process_exception(self, request, exception):
-        # Logic executed if an exception/error occurs in the view
-        pass
+    # def process_exception(self, request, exception):
+    #     # Logic executed if an exception/error occurs in the view
+    #     pass
 
