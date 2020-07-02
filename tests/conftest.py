@@ -12,7 +12,7 @@ from django_q.models import Schedule
 from saas_framework.accounts.models import Account
 from saas_framework.principals.models import Principal
 from saas_framework.tpas.models import ThirdPartyApp
-from saas_framework.workspace_membership.models import WorkspaceMembership
+from saas_framework.sharing.models import Sharing
 from saas_framework.workspaces.models import Workspace
 
 logger = logging.getLogger(__name__)

@@ -11,7 +11,7 @@ from django.dispatch import receiver
 
 from saas_framework.attachments.models import Attachment
 from saas_framework.comments.models import Comment
-from saas_framework.workspace_membership.models import WorkspaceMembership
+from saas_framework.sharing.models import Sharing
 from saas_framework.tags.models import Tag
 from django.contrib.contenttypes.fields import GenericForeignKey
 
@@ -47,7 +47,7 @@ class ChangeHandler:
 
     @classmethod
     def register(cls):
-        cls.track_models = [Tag, Attachment, Comment, WorkspaceMembership]
+        cls.track_models = [Tag, Attachment, Comment, Sharing]
         post_save.connect(cls.post_save_callback)
         post_delete.connect(cls.post_delete_callback)
 

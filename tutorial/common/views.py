@@ -24,7 +24,7 @@ from saas_framework.tpas.views import (AccountThirdPartyAppViewSet,
                                        ThirdPartyAppViewSet)
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.views import WorkspaceViewSet
-from saas_framework.workspace_membership.mixins import WorkspaceMembershipModelViewSetMixin
+from saas_framework.sharing.mixins import SharingModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
@@ -63,11 +63,11 @@ class AccountThirdPartyAppViewSet(AccountThirdPartyAppViewSet):
     def get_queryset(self):
         return super().get_queryset().filter(account=Account.objects.get(id=request.claim.account_id)).order_by('-created_at')
 
-class AttachmentViewSet(WorkspaceMembershipModelViewSetMixin, AttachmentViewSet):
+class AttachmentViewSet(SharingModelViewSetMixin, AttachmentViewSet):
     pass
 
-class TagViewSet(WorkspaceMembershipModelViewSetMixin, TagViewSet):
+class TagViewSet(SharingModelViewSetMixin, TagViewSet):
     pass
 
-class CommentViewSet(WorkspaceMembershipModelViewSetMixin, CommentViewSet):
+class CommentViewSet(SharingModelViewSetMixin, CommentViewSet):
     pass

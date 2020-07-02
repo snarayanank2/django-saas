@@ -10,14 +10,14 @@ from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 from saas_framework.principals.models import Principal
-from saas_framework.workspace_membership.models import WorkspaceMembership
+from saas_framework.sharing.models import Sharing
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.serializers import WorkspaceSerializer
 
 logger = logging.getLogger(__name__)
 
 # if you want to associate a model with a workspace, inherit from this modelviewsetmixing
-class WorkspaceMembershipModelViewSetMixin:
+class SharingModelViewSetMixin:
     # need to inherit from perform_create because that has reference to the object
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -25,13 +25,13 @@ class WorkspaceMembershipModelViewSetMixin:
         content_type = ContentType.objects.get_for_model(obj)
         workspace = Workspace.objects.get(id=self.request.claim.workspace_id)
         principal = Principal.objects.get(id=self.request.claim.principal_id)
-        wm = WorkspaceMembership.objects.create(workspace=workspace, content_type=content_type, object_id=obj.id, created_by=principal)
+        wm = Sharing.objects.create(workspace=workspace, content_type=content_type, object_id=obj.id, created_by=principal)
         return obj
 
     def perform_destroy(self, instance):
         content_type = ContentType.objects.get_for_model(instance)
         try:
-            wm = WorkspaceMembership.objects.get(content_type=content_type, object_id=instance.id)
+            wm = Sharing.objects.get(content_type=content_type, object_id=instance.id)
         except ObjectDoesNotExist:
             raise NotFound()
         wm.deleted_at = timezone.now()
@@ -41,5 +41,5 @@ class WorkspaceMembershipModelViewSetMixin:
     # by default only returns objects in this workspace
     def get_queryset(self):
         return super().get_queryset().filter(
-            Exists(WorkspaceMembership.objects.filter(object_id=OuterRef('pk'), workspace=self.request.claim.workspace_id, deleted_at__isnull=True)),
+            Exists(Sharing.objects.filter(object_id=OuterRef('pk'), workspace=self.request.claim.workspace_id, deleted_at__isnull=True)),
         ).order_by('id')
