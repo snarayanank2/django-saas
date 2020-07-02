@@ -2,7 +2,7 @@ import logging
 import jwt
 import pytest
 import re
-from tests.utils import assert_claim, assert_response
+from tests.utils import assert_claim, assert_success, assert_error
 from django.test import Client
 
 logger = logging.getLogger(__name__)
@@ -34,11 +34,11 @@ def test_authorize(u1client):
 def test_authorize_fail_role(u3client):
     # u3 does not have admin role, therefore cannot authorize for scope admin
     res = u3client.get('/auth/o/authorize/', data={'client_id': 2, 'response_type': 'code', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})
-    assert_response(response=res, status_code=403, detail='You do not have')
+    assert_error(response=res, status_code=403, detail='You do not have')
  
 def test_authorize_fail_response_type(u3client):
     res = u3client.get('/auth/o/authorize/', data={'client_id': 2, 'response_type': 'implicit', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})    
-    assert_response(response=res, status_code=400, detail='Invalid')
+    assert_error(response=res, status_code=400, detail='Invalid')
 
 def test_refresh_token(u1client):
     code = authorize(u1client=u1client)
@@ -49,13 +49,13 @@ def test_refresh_token(u1client):
 def test_refresh_token_fail_secret(u1client):
     code = authorize(u1client=u1client)
     res = u1client.post('/auth/o/token/', data={'client_id': 2, 'client_secret': 'blah', 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code'})
-    assert_response(response=res, status_code=401, detail='Unauthorized')
+    assert_error(response=res, status_code=401, detail='Unauthorized')
 
 def test_access_token(u1client):
     code = authorize(u1client=u1client)
     refresh_token, access_token = tokens(u1client=u1client, code=code)
     res = u1client.post('/auth/o/token/', data={'client_id': 2, 'client_secret': 'password123', 'refresh_token': refresh_token, 'grant_type': 'refresh_token'})
-    assert_response(response=res, status_code=200)
+    assert_success(response=res, status_code=200)
     data = res.json()
     assert 'refresh_token' in data
     assert 'access_token' in data

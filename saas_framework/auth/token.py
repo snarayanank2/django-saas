@@ -74,7 +74,7 @@ class TokenUtils:
             workspace = Workspace.objects.get(id=workspace_id)
             role = Role.objects.get(workspace=workspace, user=user)
         except ObjectDoesNotExist:
-            raise NotFound()
+            raise UnAuthorizedException()
 
         claim1 = Claim(user_id=user.id, workspace_id=workspace.id, roles=role.roles, tpa_id=claim.tpa_id)
         refresh_token = claim1.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC)
