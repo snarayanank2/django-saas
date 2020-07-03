@@ -71,7 +71,7 @@ class TokenUtils:
         except ObjectDoesNotExist:
             raise UnAuthorizedException()
 
-        claim = Claim(user_id=user.id, workspace_id=workspace.id, roles=role.roles)
+        claim = Claim(user_id=user.id, workspace_id=workspace.id, scope=role.scope)
         refresh_token = claim.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC)
         access_token = claim.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)
@@ -86,12 +86,11 @@ class TokenUtils:
         user = User.objects.get(id=claim.user_id)
         role = Role.objects.get(workspace=workspace, user=user)
         tpa = ThirdPartyApp.objects.get(id=client_id)
-        extra_roles = set(scope.split(',')) - set(role.roles.split(','))
-        if len(extra_roles) > 0:
-            raise PermissionDenied(f'Requested scopes {extra_roles} cannot be granted by user')
-        roles = scope
+        extra_scope = set(scope.split(',')) - set(role.scope.split(','))
+        if len(extra_scope) > 0:
+            raise PermissionDenied(f'Requested scopes {extra_scope} cannot be granted by user')
         atpa = ThirdPartyAppInstall.objects.create(workspace=workspace, user=user, tpa=tpa)
-        claim1 = Claim(user_id=user.id, tpa_id=tpa.id, workspace_id=workspace.id, roles=roles, code_challenge=code_challenge)
+        claim1 = Claim(user_id=user.id, tpa_id=tpa.id, workspace_id=workspace.id, scope=scope, code_challenge=code_challenge)
         code = claim1.to_token(exp_seconds=300)
         return code
 
@@ -134,7 +133,7 @@ class TokenUtils:
         except ObjectDoesNotExist:
             raise PermissionDenied()
 
-        claim1 = Claim(user_id=user.id, workspace_id=workspace.id, tpa_id=tpa.id, roles=claim.roles, code_challenge=claim.code_challenge)
+        claim1 = Claim(user_id=user.id, workspace_id=workspace.id, tpa_id=tpa.id, scope=claim.scope, code_challenge=claim.code_challenge)
         refresh_token = claim1.to_token(exp_seconds=TokenUtils.REFRESH_TOKEN_EXPIRY_SEC) # consider 10 years
         access_token = claim1.to_token(exp_seconds=TokenUtils.ACCESS_TOKEN_EXPIRY_SEC)
         return (refresh_token, access_token)

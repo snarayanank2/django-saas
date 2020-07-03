@@ -59,12 +59,12 @@ class RolePolicyPermission(BasePermission):
             return True
 
         logger.info('entering authorization checks')
-        roles = request.claim.roles
+        scope = request.claim.scope
 
-        if not roles:
+        if not scope:
             return False
 
-        for role in roles.split(','):
+        for role in scope.split(','):
             if self.is_allowed(role, path, method):
                 return True
 

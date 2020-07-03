@@ -17,6 +17,6 @@ class WorkspaceViewSet(WorkspaceViewSet):
     def create(self, request):
         res = super().create(request)
         workspace = Workspace.objects.get(id=res.data['id'])
-        role = Role.objects.create(workspace=workspace, user=User.objects.get(id=request.claim.user_id), roles='admin,common')
+        role = Role.objects.create(workspace=workspace, user=User.objects.get(id=request.claim.user_id), scope='admin,common')
         return res
     

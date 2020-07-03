@@ -12,7 +12,7 @@ class Role(models.Model):
 
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
-    roles = models.CharField(max_length=200)
+    scope = models.CharField(max_length=200)
 
     class Meta:
         ordering = ['created_at']

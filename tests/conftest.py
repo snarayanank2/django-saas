@@ -25,10 +25,10 @@ def load():
     w1 = Workspace.objects.create(name='workspace1')
     w2 = Workspace.objects.create(name='workspace2')
 
-    r1 = Role.objects.get_or_create(user=u1, workspace=w1, roles='admin,common')
-    r2 = Role.objects.get_or_create(user=u1, workspace=w2, roles='admin,common')
-    r3 = Role.objects.get_or_create(user=u2, workspace=w2, roles='admin,common')
-    r4 = Role.objects.get_or_create(user=u3, workspace=w1, roles='common')
+    r1 = Role.objects.get_or_create(user=u1, workspace=w1, scope='admin,common')
+    r2 = Role.objects.get_or_create(user=u1, workspace=w2, scope='admin,common')
+    r3 = Role.objects.get_or_create(user=u2, workspace=w2, scope='admin,common')
+    r4 = Role.objects.get_or_create(user=u3, workspace=w1, scope='common')
 
     tpa1 = ThirdPartyApp.objects.create(creator=User.objects.get(id=1), name='webapp', secret=password, 
                 description='tpa1', enabled=True, redirect_uris='')

@@ -13,9 +13,6 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from saas_framework.roles.models import Role
-from saas_framework.roles.serializers import RoleSerializer
-from saas_framework.roles.views import RoleViewSet
 from saas_framework.attachments.models import Attachment
 from saas_framework.attachments.views import AttachmentViewSet
 from saas_framework.comments.views import CommentViewSet

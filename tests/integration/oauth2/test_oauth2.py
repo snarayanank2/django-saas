@@ -52,7 +52,7 @@ def test_refresh_token(u1client):
     code = authorize(u1client=u1client)
     refresh_token, access_token = tokens(u1client=u1client, code=code)
     assert_claim(token=refresh_token, tpa_id=2, user_id=1)
-    assert_claim(token=access_token, tpa_id=2, user_id=1, roles='admin')
+    assert_claim(token=access_token, tpa_id=2, user_id=1, scope='admin')
 
 def test_refresh_token_fail_secret(u1client):
     code = authorize(u1client=u1client)

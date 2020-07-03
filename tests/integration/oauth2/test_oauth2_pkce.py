@@ -44,7 +44,7 @@ def test_refresh_token(u1client, random_str1):
     code = authorize(u1client=u1client, code_verifier=random_str1)
     refresh_token, access_token = tokens(u1client=u1client, code=code, code_verifier=random_str1)
     assert_claim(token=refresh_token, tpa_id=2, user_id=1)
-    assert_claim(token=access_token, tpa_id=2, user_id=1, roles='admin')
+    assert_claim(token=access_token, tpa_id=2, user_id=1, scope='admin')
 
 def test_refresh_token_fail_code_verifier(u1client, random_str1, random_str2):
     code = authorize(u1client=u1client, code_verifier=random_str1)

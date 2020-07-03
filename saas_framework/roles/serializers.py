@@ -16,5 +16,5 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        fields = ['id', 'workspace', 'user', 'roles']
+        fields = ['id', 'workspace', 'user', 'scope']
 

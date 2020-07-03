@@ -12,11 +12,11 @@ logger = logging.getLogger(__name__)
 class Claim:
     secret_key = settings.SECRET_KEY
 
-    def __init__(self, user_id=None, workspace_id=None, tpa_id=None, roles=None, code_challenge=None):
+    def __init__(self, user_id=None, workspace_id=None, tpa_id=None, scope=None, code_challenge=None):
         self.workspace_id = workspace_id
         self.user_id = user_id
         self.tpa_id = tpa_id
-        self.roles = roles
+        self.scope = scope
         self.code_challenge = code_challenge
 
     @classmethod
@@ -35,7 +35,7 @@ class Claim:
             'workspace_id': self.workspace_id,
             'user_id': self.user_id,
             'tpa_id': self.tpa_id,
-            'roles': self.roles,
+            'scope': self.scope,
             'code_challenge': self.code_challenge
         }
         payload = {
