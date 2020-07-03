@@ -3,7 +3,7 @@ import json
 import logging
 import re
 
-from saas_framework.auth.permissions import RolePolicyPermission
+from saas_framework.permissions import RolePolicyPermission
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,6 @@ import pytest
 import re
 from tests.utils import assert_claim, assert_success, assert_error
 from django.test import Client
-from saas_framework.auth.token import TokenUtils
 
 logger = logging.getLogger(__name__)
 

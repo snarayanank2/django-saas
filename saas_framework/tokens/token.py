@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, ParseError, PermissionDenied
 
 from saas_framework.roles.models import Role
-from saas_framework.auth.claim import Claim
+from saas_framework.tokens.claim import Claim
 from saas_framework.tpas.models import ThirdPartyAppInstall, ThirdPartyApp
 from saas_framework.workspaces.models import Workspace
 from rest_framework.exceptions import APIException, NotFound
