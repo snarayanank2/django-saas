@@ -12,8 +12,8 @@ from saas_framework.users.serializers import UserSerializer
 logger = logging.getLogger(__name__)
 
 class ThirdPartyAppSerializer(serializers.ModelSerializer):
-    user_id = PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', write_only=True)
-    user = UserSerializer(read_only=True)
+    creator_id = PrimaryKeyRelatedField(queryset=User.objects.all(), source='creator', write_only=True)
+    creator = UserSerializer(read_only=True)
     secret = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
@@ -26,7 +26,7 @@ class ThirdPartyAppSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ThirdPartyApp
-        fields = ['id', 'user_id', 'user', 'name', 'secret', 'description', 'enabled', 'redirect_uris']
+        fields = ['id', 'creator_id', 'creator', 'name', 'secret', 'description', 'enabled', 'redirect_uris']
     
 
 class ThirdPartyAppInstallSerializer(serializers.ModelSerializer):

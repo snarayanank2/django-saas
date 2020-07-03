@@ -30,10 +30,10 @@ def load():
     r3 = Role.objects.get_or_create(user=u2, workspace=w2, roles='admin,common')
     r4 = Role.objects.get_or_create(user=u3, workspace=w1, roles='common')
 
-    tpa1 = ThirdPartyApp.objects.create(user=User.objects.get(id=1), name='webapp', secret=password, 
+    tpa1 = ThirdPartyApp.objects.create(creator=User.objects.get(id=1), name='webapp', secret=password, 
                 description='tpa1', enabled=True, redirect_uris='')
 
-    tpa2 = ThirdPartyApp.objects.create(user=User.objects.get(id=1), name='tpa2', secret=password, 
+    tpa2 = ThirdPartyApp.objects.create(creator=User.objects.get(id=1), name='tpa2', secret=password, 
                 description='tpa2', enabled=True, redirect_uris='')
 
 @pytest.fixture(scope='session')

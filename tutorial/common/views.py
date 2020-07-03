@@ -48,13 +48,13 @@ class RoleViewSet(RoleViewSet):
 
 class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.claim.user_id).order_by('-id')
+        return super().get_queryset().filter(creator=self.request.claim.user_id).order_by('-id')
 
     def create(self, request):
         # TODO: consider making this a utility
         _mutable = request.data._mutable
         request.data._mutable = True
-        request.data['user_id'] = request.claim.user_id
+        request.data['creator_id'] = request.claim.user_id
         request.data._mutable = _mutable
         return super().create(request)
 
