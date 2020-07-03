@@ -24,8 +24,9 @@ class SharingModelViewSetMixin:
         obj = serializer.instance
         content_type = ContentType.objects.get_for_model(obj)
         workspace = Workspace.objects.get(id=self.request.claim.workspace_id)
+        creator = User.objects.get(id=self.request.claim.user_id) # TODO: when we add proxy support, change this
         user = User.objects.get(id=self.request.claim.user_id)
-        wm = Sharing.objects.create(workspace=workspace, user=user, content_type=content_type, object_id=obj.id)
+        wm = Sharing.objects.create(workspace=workspace, creator=creator, user=user, content_type=content_type, object_id=obj.id)
         return obj
 
     def perform_destroy(self, instance):

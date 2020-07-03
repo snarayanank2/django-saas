@@ -26,5 +26,3 @@ def test_create(db, u3client):
     })
     assert_success(response=res, status_code=201)
     data = res.json()
-
-
