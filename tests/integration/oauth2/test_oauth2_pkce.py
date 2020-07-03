@@ -18,7 +18,7 @@ def random_str2():
 
 def authorize(u1client, code_verifier):
     code_challenge = TokenUtils.generate_code_challenge(code_verifier=code_verifier)
-    res = u1client.get('/auth/o/authorize/', data={'client_id': 2, 'response_type': 'code', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin', 'code_challenge': code_challenge, 'code_challenge_method': 'S256'})    
+    res = u1client.get('/oauth2/authorize/', data={'client_id': 2, 'response_type': 'code', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin', 'code_challenge': code_challenge, 'code_challenge_method': 'S256'})    
     data = res.json()
     assert 'redirect_uri' in data
     redirect_uri = data['redirect_uri']
@@ -28,7 +28,7 @@ def authorize(u1client, code_verifier):
     return code
 
 def tokens(u1client, code, code_verifier):
-    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code', 'code_verifier': code_verifier})
+    res = u1client.post('/oauth2/token/', data={'client_id': 2, 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code', 'code_verifier': code_verifier})
     assert_success(response=res, status_code=200)
     data = res.json()
     assert 'access_token' in data
@@ -38,7 +38,7 @@ def tokens(u1client, code, code_verifier):
 def test_authorize(u1client, random_str1):
     code = authorize(u1client=u1client, code_verifier=random_str1)
     assert code, 'code is null'
-    assert_claim(token=code, tpa_id=2, user_id=1, workspace_id=1)
+    assert_claim(token=code, tpa_id=2, user_id=1, workspace_id=2)
 
 def test_refresh_token(u1client, random_str1):
     code = authorize(u1client=u1client, code_verifier=random_str1)
@@ -48,13 +48,13 @@ def test_refresh_token(u1client, random_str1):
 
 def test_refresh_token_fail_code_verifier(u1client, random_str1, random_str2):
     code = authorize(u1client=u1client, code_verifier=random_str1)
-    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'code_verifier': random_str2, 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code'})
+    res = u1client.post('/oauth2/token/', data={'client_id': 2, 'code_verifier': random_str2, 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code'})
     assert_error(response=res, status_code=401, detail='Invalid code_verifier')
 
 def test_access_token(u1client, random_str1):
     code = authorize(u1client=u1client, code_verifier=random_str1)
     refresh_token, access_token = tokens(u1client=u1client, code=code, code_verifier=random_str1)
-    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'code_verifier': random_str1, 'refresh_token': refresh_token, 'grant_type': 'refresh_token'})
+    res = u1client.post('/oauth2/token/', data={'client_id': 2, 'code_verifier': random_str1, 'refresh_token': refresh_token, 'grant_type': 'refresh_token'})
     assert_success(response=res, status_code=200)
     data = res.json()
     assert 'refresh_token' in data
@@ -64,5 +64,5 @@ def test_access_token(u1client, random_str1):
 def test_access_token_fail_code_verifier(u1client, random_str1, random_str2):
     code = authorize(u1client=u1client, code_verifier=random_str1)
     refresh_token, access_token = tokens(u1client=u1client, code=code, code_verifier=random_str1)
-    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'code_verifier': random_str2, 'refresh_token': refresh_token, 'grant_type': 'refresh_token'})
+    res = u1client.post('/oauth2/token/', data={'client_id': 2, 'code_verifier': random_str2, 'refresh_token': refresh_token, 'grant_type': 'refresh_token'})
     assert_error(response=res, status_code=401, detail='Invalid code_verifier')

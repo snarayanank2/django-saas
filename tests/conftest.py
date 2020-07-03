@@ -26,7 +26,7 @@ def load():
     w2 = Workspace.objects.create(name='workspace2')
 
     r1 = Role.objects.get_or_create(user=u1, workspace=w1, roles='admin,common')
-    r2 = Role.objects.get_or_create(user=u1, workspace=w2, roles='common')
+    r2 = Role.objects.get_or_create(user=u1, workspace=w2, roles='admin,common')
     r3 = Role.objects.get_or_create(user=u2, workspace=w2, roles='admin,common')
     r4 = Role.objects.get_or_create(user=u3, workspace=w1, roles='common')
 
@@ -51,14 +51,32 @@ def django_db_setup(django_db_setup, django_db_blocker, django_db_modify_db_sett
     with django_db_blocker.unblock():
         load()
 
-def login(client, email, password):
-    res = client.post('/auth/basic/signin/', data={
+
+def login(client, email, password, switch_workspace=True):
+    res = client.post('/identity/basic/signin/', data={
 	    "email": email,
 	    "password": password
     }).json()
     access_token = res['access_token']
+    refresh_token = res['refresh_token']
     authorization = f'Bearer {access_token}'
     s = Client(HTTP_AUTHORIZATION=authorization)
+
+    if switch_workspace:
+        # pick first workspace
+        res = s.get('/workspaces/')
+        data = res.json()
+        logger.info('data = %s', data)
+        workspace_id = data['results'][0]['id']
+        res = s.post(f'/workspaces/{workspace_id}/switch/', data={ 'refresh_token': refresh_token, 'workspace_id': workspace_id})
+        data = res.json()
+        assert 'access_token' in data and 'refresh_token' in data
+        access_token = data['access_token']
+        refresh_token = data['refresh_token']
+        authorization = f'Bearer {access_token}'
+        s1 = Client(HTTP_AUTHORIZATION=authorization)
+        return s1
+
     return s
 
 @pytest.fixture

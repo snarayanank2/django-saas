@@ -1,11 +1,12 @@
 import logging
 
 import pytest
+from tests.utils import assert_success, assert_error
 
 logger = logging.getLogger(__name__)
 
 def test_refresh_token(db, client):
-    res = client.post('/auth/basic/signin/', data={
+    res = client.post('/identity/basic/signin/', data={
 	    'email': 'u1@gmail.com',
 	    'password': 'password123'
     })
@@ -14,7 +15,7 @@ def test_refresh_token(db, client):
     res = client.post('/auth/token/', data={
 	    'refresh_token': refresh_token
     })
-    assert res.status_code == 200
+    assert_success(response=res, status_code=200)
     data = res.json()
     assert 'access_token' in data
 

@@ -30,4 +30,5 @@ class Permission(RolePolicyPermission):
             'write' : True
             }]
     }
-    always_allowed_regex = '/auth/.*'
+    always_allowed_regex = '/(identity|auth)/.*|/oauth2/token/'
+    user_allowed_regex = '/workspaces/.*|/oauth2/authorize/'

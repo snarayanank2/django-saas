@@ -10,9 +10,10 @@ def assert_claim(token, **kwargs):
         v = kwargs[k]
         assert claim[k] == v, f'expected claim[{k}] to have {v}, but it had {claim[k]}'
 
-def assert_success(response, status_code=None):
+def assert_success(response, status_code):
     data = response.json()
-    assert not status_code or response.status_code == status_code, f'expected status_code {status_code} but got {response.status_code} with detail {data}'
+    logger.info('assert_success checking response.status_code %s', response.status_code)
+    assert response.status_code == status_code, f'expected status_code {status_code} but got {response.status_code} with detail {data}'
 
 def assert_error(response, status_code=None, detail=None):
     assert not status_code or response.status_code == status_code, f'expected status_code {status_code} but got {response.status_code}'

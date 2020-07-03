@@ -4,7 +4,10 @@ from django.conf.urls import (handler400, handler403, handler404, handler500)
 from tutorial.views import error404, error500
 
 urlpatterns = [
-    path('auth/', include('tutorial.auth.urls')),
+    path('identity/', include('saas_framework.identity.urls')),
+    path('auth/', include('saas_framework.auth.urls')),
+    path('oauth2/', include('saas_framework.oauth2.urls')),
+    path('workspaces/', include('tutorial.workspaces.urls')),
     path('common/', include('tutorial.common.urls')),
     path('admin/', include('tutorial.admin.urls')),
 ]

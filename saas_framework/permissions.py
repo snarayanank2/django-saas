@@ -26,6 +26,7 @@ class RolePolicyPermission(BasePermission):
         }]
     }
     always_allowed_regex = '/auth/.*'
+    user_allowed_regex = None
 
     def is_allowed(self, role, path, method):
 #        logger.info('checking role=%s, path=%s, method=%s', role, path, method)
@@ -43,11 +44,21 @@ class RolePolicyPermission(BasePermission):
 
     def has_permission(self, request, view):
         path = request.get_full_path()
+        logger.info('has permission checking path %s', path)
         method = request.method
 
-        if re.search(self.always_allowed_regex, path):
+        if self.always_allowed_regex and re.search(self.always_allowed_regex, path):
+            logger.info('always allowed regex matches')
             return True
 
+        logger.info('checking path %s against claim.user_id %s', path, request.claim.user_id)
+
+        # if claim has user_id and user_allowed_regex matches then let this call through
+        if self.user_allowed_regex and request.claim.user_id and re.search(self.user_allowed_regex, path):
+            logger.info('user allowed regex matches')
+            return True
+
+        logger.info('entering authorization checks')
         roles = request.claim.roles
 
         if not roles:
