@@ -28,42 +28,6 @@ from saas_framework.sharing.mixins import SharingModelViewSetMixin
 
 logger = logging.getLogger(__name__)
 
-class WorkspaceViewSet(WorkspaceViewSet):
-    def get_queryset(self):
-        return Workspace.objects.filter(
-                Exists(Role.objects.filter(workspace=OuterRef('pk'), user=self.request.claim.user_id))
-            ).order_by('-id')
-
-    def create(self, request):
-        res = super().create(request)
-        workspace = Workspace.objects.get(id=res.data['id'])
-        role = Role.objects.create(workspace=workspace, user=User.objects.get(id=request.claim.user_id), roles='admin,common')
-        return res
-
-class RoleViewSet(RoleViewSet):
-    def get_queryset(self):
-        workspace = Workspace.objects.get(id=self.request.claim.workspace_id)
-        user = User.objects.get(id=self.request.claim.user_id)
-        return super().get_queryset().filter(workspace=workspace, user=user).order_by('-id')
-
-class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
-    def get_queryset(self):
-        return super().get_queryset().filter(creator=self.request.claim.user_id).order_by('-id')
-
-    def create(self, request):
-        # TODO: consider making this a utility
-        _mutable = request.data._mutable
-        request.data._mutable = True
-        request.data['creator_id'] = request.claim.user_id
-        request.data._mutable = _mutable
-        return super().create(request)
-
-class ThirdPartyAppInstallViewSet(ThirdPartyAppInstallViewSet):
-    def get_queryset(self):
-        workspace = Workspace.objects.get(id=self.request.claim.workspace_id)
-        user = User.objects.get(id=self.request.claim.user_id)
-        return super().get_queryset().filter(workspace=workspace, user=user).order_by('-id')
-
 class AttachmentViewSet(SharingModelViewSetMixin, AttachmentViewSet):
     pass
 

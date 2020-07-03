@@ -90,7 +90,7 @@ class TokenUtils:
         if len(extra_roles) > 0:
             raise PermissionDenied(f'Requested scopes {extra_roles} cannot be granted by user')
         roles = scope
-        atpa = ThirdPartyAppInstall.objects.create(workspace=workspace, user=user, tpa=tpa, roles=roles)
+        atpa = ThirdPartyAppInstall.objects.create(workspace=workspace, user=user, tpa=tpa)
         claim1 = Claim(user_id=user.id, tpa_id=tpa.id, workspace_id=workspace.id, roles=roles, code_challenge=code_challenge)
         code = claim1.to_token(exp_seconds=300)
         return code

@@ -22,13 +22,9 @@ class ThirdPartyApp(models.Model):
         ordering = ['id']
 
 class ThirdPartyAppInstall(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='+')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     tpa = models.ForeignKey(ThirdPartyApp, on_delete=models.CASCADE, related_name='+')
-    roles = models.TextField()
     class Meta:
         ordering = ['id']
 

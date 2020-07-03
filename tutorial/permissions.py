@@ -31,4 +31,4 @@ class Permission(RolePolicyPermission):
             }]
     }
     always_allowed_regex = '/(identity|auth)/.*|/oauth2/token/'
-    user_allowed_regex = '/workspaces/.*|/oauth2/authorize/'
+    user_allowed_regex = '/workspaces/.*|/tpas/.*|/oauth2/authorize/'

@@ -8,6 +8,7 @@ urlpatterns = [
     path('auth/', include('saas_framework.auth.urls')),
     path('oauth2/', include('saas_framework.oauth2.urls')),
     path('workspaces/', include('tutorial.workspaces.urls')),
+    path('tpas/', include('tutorial.tpas.urls')),
     path('common/', include('tutorial.common.urls')),
     path('admin/', include('tutorial.admin.urls')),
 ]

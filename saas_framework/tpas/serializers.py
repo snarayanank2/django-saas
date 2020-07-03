@@ -39,4 +39,4 @@ class ThirdPartyAppInstallSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ThirdPartyApp
-        fields = ['id', 'workspace_id', 'workspace', 'user_id', 'user', 'tpa_id', 'tpa', 'roles']
+        fields = ['id', 'workspace_id', 'workspace', 'user_id', 'user', 'tpa_id', 'tpa']
