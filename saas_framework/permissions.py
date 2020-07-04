@@ -9,63 +9,53 @@ logger = logging.getLogger(__name__)
 
 # Example permissions - please extend to new roles
 class RolePolicyPermission(BasePermission):
-    # policy is a dict were keys are roles and values are list of permissions
-    # permission is a dict with the keys: path_regex, read, write
+    # policy is a dict were keys are roles and values are path_regex
     # path_regex should match the specific path that the role is trying to access
-    # read and write are True / False and determine whether the op is allowed or not
     policy = {
-        'auditor': [{
-            'path_regex' : '.*',
-            'read' : True,
-            'write' : False
-            }],
-        'super_admin': [{
-            'path_regex' : '.*',
-            'read' : True,
-            'write' : True
-        }]
+        'admin': '/admin/.*',
+        'common': '/common/.*'
     }
-    always_allowed_regex = '/auth/.*'
-    user_allowed_regex = None
 
-    def is_allowed(self, role, path, method):
+    # this signifies paths that can accessed by anyone without authentication
+    always_allowed = '/auth/.*'
+
+    # paths allowed by any authenticated user
+    user_allowed = None
+
+    def is_allowed(self, role, path):
 #        logger.info('checking role=%s, path=%s, method=%s', role, path, method)
-        rules = self.policy[role]
-        for rule in rules:
-            regex = rule['path_regex']
-            if re.search(regex, path):
-                if method in ['GET'] and rule['read']:
-                    return True
-                if method in ['POST', 'PUT', 'PATCH', 'DELETE'] and rule['write']:
-                    return True
-                if method in ['OPTIONS']:
-                    return True
+        if role not in self.policy:
+            return False
+
+        role_regex = self.policy[role]
+        if re.search(role_regex, path):
+            return True
+
         return False
 
     def has_permission(self, request, view):
         path = request.get_full_path()
-        logger.info('has permission checking path %s', path)
-        method = request.method
+        # logger.info('has permission checking path %s', path)
 
-        if self.always_allowed_regex and re.search(self.always_allowed_regex, path):
-            logger.info('always allowed regex matches')
+        if self.always_allowed and re.search(self.always_allowed, path):
+            # logger.info('always allowed regex matches')
             return True
 
-        logger.info('checking path %s against claim.user_id %s', path, request.claim.user_id)
+        # logger.info('checking path %s against claim.user_id %s', path, request.claim.user_id)
 
-        # if claim has user_id and user_allowed_regex matches then let this call through
-        if self.user_allowed_regex and request.claim.user_id and re.search(self.user_allowed_regex, path):
-            logger.info('user allowed regex matches')
+        # if claim has user_id and user_allowed matches then let this call through
+        if self.user_allowed and request.claim.user_id and re.search(self.user_allowed, path):
+            # logger.info('user allowed regex matches')
             return True
 
-        logger.info('entering authorization checks')
+        # logger.info('entering authorization checks')
         scope = request.claim.scope
 
         if not scope:
             return False
 
         for role in scope.split(','):
-            if self.is_allowed(role, path, method):
+            if self.is_allowed(role, path):
                 return True
 
         return False
