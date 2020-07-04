@@ -66,7 +66,7 @@ def login(client, email, password, switch_workspace=True):
         # pick first workspace
         res = s.get('/workspaces/')
         data = res.json()
-        logger.info('data = %s', data)
+#        logger.info('data = %s', data)
         workspace_id = data['results'][0]['id']
         res = s.post(f'/workspaces/{workspace_id}/switch/', data={ 'refresh_token': refresh_token, 'workspace_id': workspace_id})
         data = res.json()
