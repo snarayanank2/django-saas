@@ -2,11 +2,11 @@ version: '3'
 
 services:
   backend:
-    build: .
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    container_name: django-saas-backend
+    build: backend/
+    command: bash -c "pwd && ls -l && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    container_name: django_saas_backend
     volumes:
-      - .:/django-saas
+      - ./backend:/django-saas-backend
     ports:
       - "8000:8000"
     environment:
@@ -15,3 +15,7 @@ services:
       - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME}
+
+# volumes:
+#   volume-name:
+#   driver: local
