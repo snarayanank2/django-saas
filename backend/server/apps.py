@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
-class TutorialConfig(AppConfig):
-    name = 'tutorial'
+class ServerConfig(AppConfig):
+    name = 'server'
 
     def ready(self):
         pass

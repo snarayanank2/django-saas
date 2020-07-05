@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
-from tutorial.admin import views
+from server.admin import views
 
 router = routers.DefaultRouter()
 router.register(r'tpas', views.ThirdPartyAppViewSet)
