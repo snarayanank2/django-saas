@@ -16,6 +16,11 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME}
 
-# volumes:
-#   volume-name:
-#   driver: local
+  frontend:
+    build: frontend/
+    command: sh -c "pwd && ls -l && ng serve --host 0.0.0.0 --port 4200"
+    container_name: django_saas_frontend
+    volumes:
+      - ./frontend/saas:/django-saas-frontend
+    ports:
+      - "4200:4200"

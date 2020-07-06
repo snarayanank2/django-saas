@@ -1,0 +1,8 @@
+FROM node:12.7-alpine
+RUN mkdir -p /django-saas-frontend
+WORKDIR /django-saas-frontend
+COPY saas/package.json saas/package-lock.json /django-saas-frontend/
+RUN npm install
+RUN npm install -g @angular/cli@10.0.1
+COPY saas/ /django-saas-frontend/
+
