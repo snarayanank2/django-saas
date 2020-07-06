@@ -13,6 +13,7 @@ from saas_framework.tpas.models import ThirdPartyApp
 from saas_framework.sharing.models import Sharing
 from saas_framework.workspaces.models import Workspace
 from saas_framework.roles.models import Role
+from django_q.models import Schedule
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,12 @@ def load():
 
     tpa2 = ThirdPartyApp.objects.create(creator=User.objects.get(id=1), name='tpa2', secret=password, 
                 description='tpa2', enabled=True, redirect_uris='')
+
+    Schedule.objects.create(func='saas_framework.schedules.models.dummy_func',
+                        schedule_type=Schedule.MINUTES,
+                        minutes=1,
+                        kwargs={'workspace_id' : 20}
+                        )
 
 @pytest.fixture(scope='session')
 def django_db_setup(django_db_setup, django_db_blocker, django_db_modify_db_settings, django_db_keepdb):

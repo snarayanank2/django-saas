@@ -5,7 +5,8 @@ services:
     build: 
       context: ./backend/
       dockerfile: Dockerfile.dev
-    command: bash -c "pwd && ls -l && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+#    command: bash -c "rm -f db.sqlite3 && python manage.py migrate && python -m pytest --reuse-db && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py runserver 0.0.0.0:8000"
     container_name: django_saas_backend
     volumes:
       - ./backend:/django-saas-backend
@@ -17,6 +18,24 @@ services:
       - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME}
+
+  worker:
+    build: 
+      context: ./backend/
+      dockerfile: Dockerfile.dev
+    command: bash ./wait-for-it.sh -t 100 django_saas_backend:8000 -- python manage.py qcluster
+    container_name: django_saas_worker
+    depends_on:
+      - "backend"
+    volumes:
+      - ./backend:/django-saas-worker
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME}
+
 
   frontend:
     build: 
