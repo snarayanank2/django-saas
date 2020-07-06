@@ -2,7 +2,9 @@ version: '3'
 
 services:
   backend:
-    build: backend/
+    build: 
+      context: ./backend/
+      dockerfile: Dockerfile.dev
     command: bash -c "pwd && ls -l && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     container_name: django_saas_backend
     volumes:
@@ -17,7 +19,9 @@ services:
       - AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME}
 
   frontend:
-    build: frontend/
+    build: 
+      context: ./frontend/
+      dockerfile: Dockerfile.dev
     command: sh -c "pwd && ls -l && ng serve --host 0.0.0.0 --port 4200"
     container_name: django_saas_frontend
     volumes:
