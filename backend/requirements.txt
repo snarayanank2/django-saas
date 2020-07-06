@@ -6,7 +6,7 @@ sqlparse==0.3.1
 django-filter==2.2.0
 pyjwt==1.7.1
 django_q==1.2.1
-psycopg2==2.8.5
+psycopg2-binary==2.8.5
 django-storages==1.9.1
 boto3==1.14.7
 pytest-django==3.9.0
