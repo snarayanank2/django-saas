@@ -5,23 +5,24 @@ import pytest
 logger = logging.getLogger(__name__)
 
 def test_list1(db, u1client):
-    res = u1client.get('/workspaces/')
+    res = u1client.get('/common/tpas/')
     assert_success(response=res, status_code=200)
     data = res.json()
     assert data['count'] == 2
 
 def test_list2(db, u2client):
-    res = u2client.get('/workspaces/')
+    res = u2client.get('/common/tpas/')
     assert_success(response=res, status_code=200)
     data = res.json()
-    assert data['count'] == 1
+    assert data['count'] == 0
 
 def test_create(db, u3client):
-    res = u3client.post('/workspaces/', data={
-	    "name": "workspace3"
+    res = u3client.post('/common/tpas/', data={
+	    'name': 'supertpa',
+        'description': 'most awesome tpa ever',
+        'enabled': True,
+        'redirect_uris': 'https://www.google.com/',
+        'secret': 'supertpa'
     })
     assert_success(response=res, status_code=201)
     data = res.json()
-    assert data['name'] == 'workspace3'
-
-

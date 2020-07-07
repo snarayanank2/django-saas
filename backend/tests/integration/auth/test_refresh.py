@@ -6,7 +6,7 @@ from tests.utils import assert_success, assert_error
 logger = logging.getLogger(__name__)
 
 def test_refresh_token(db, client):
-    res = client.post('/identity/basic/signin/', data={
+    res = client.post('/auth/basic/signin/', data={
 	    'email': 'u1@gmail.com',
 	    'password': 'password123'
     })

@@ -16,7 +16,4 @@ class Permission(RolePolicyPermission):
     }
 
     # this signifies paths that can accessed by anyone without authentication
-    always_allowed = '/(identity|auth|oauth2)/.*'
-
-    # paths allowed by any authenticated user
-    user_allowed = '/(workspaces|tpas)/.*'
+    always_allowed = '/auth/.*'

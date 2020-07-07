@@ -60,7 +60,7 @@ def django_db_setup(django_db_setup, django_db_blocker, django_db_modify_db_sett
 
 
 def login(client, email, password, switch_workspace=True):
-    res = client.post('/identity/basic/signin/', data={
+    res = client.post('/auth/basic/signin/', data={
 	    "email": email,
 	    "password": password
     }).json()
@@ -71,11 +71,11 @@ def login(client, email, password, switch_workspace=True):
 
     if switch_workspace:
         # pick first workspace
-        res = s.get('/workspaces/')
+        res = s.get('/auth/workspaces/')
         data = res.json()
 #        logger.info('data = %s', data)
         workspace_id = data['results'][0]['id']
-        res = s.post(f'/workspaces/{workspace_id}/switch/', data={ 'refresh_token': refresh_token, 'workspace_id': workspace_id})
+        res = s.post(f'/auth/workspaces/{workspace_id}/switch/', data={ 'refresh_token': refresh_token, 'workspace_id': workspace_id})
         data = res.json()
         assert 'access_token' in data and 'refresh_token' in data
         access_token = data['access_token']

@@ -16,7 +16,7 @@ def random_str2():
     return 'b08b385a-bc65-11ea-80fb-02a694bae1aab9aa7f86-bc65-11ea-8718-02a694bae1aabea9279e-bc65-11ea-a6c7-02a694bae1aac40ad002-bc65-11ea-9728-02a694bae1aa'
 
 def authorize(u1client):
-    res = u1client.get('/oauth2/authorize/', data={'client_id': 2, 'response_type': 'code', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})
+    res = u1client.get('/auth/o/authorize/', data={'client_id': 2, 'response_type': 'code', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})
     assert_success(response=res, status_code=200)
     data = res.json()
     assert 'redirect_uri' in data
@@ -27,7 +27,7 @@ def authorize(u1client):
     return code
 
 def tokens(u1client, code):
-    res = u1client.post('/oauth2/token/', data={'client_id': 2, 'client_secret': 'password123', 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code'})
+    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'client_secret': 'password123', 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code'})
     assert res.status_code == 200
     data = res.json()
     assert 'access_token' in data
@@ -41,11 +41,11 @@ def test_authorize(u1client):
 
 def test_authorize_fail_role(u3client):
     # u3 does not have admin role, therefore cannot authorize for scope admin
-    res = u3client.get('/oauth2/authorize/', data={'client_id': 2, 'response_type': 'code', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})
+    res = u3client.get('/auth/o/authorize/', data={'client_id': 2, 'response_type': 'code', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})
     assert_error(response=res, status_code=403, detail='Requested scopes')
  
 def test_authorize_fail_response_type(u3client):
-    res = u3client.get('/oauth2/authorize/', data={'client_id': 2, 'response_type': 'implicit', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})    
+    res = u3client.get('/auth/o/authorize/', data={'client_id': 2, 'response_type': 'implicit', 'state': 'yabba', 'redirect_uri': 'https://www.google.com/', 'scope': 'admin'})    
     assert_error(response=res, status_code=400, detail='Invalid')
 
 def test_refresh_token(u1client):
@@ -56,18 +56,18 @@ def test_refresh_token(u1client):
 
 def test_refresh_token_fail_secret(u1client):
     code = authorize(u1client=u1client)
-    res = u1client.post('/oauth2/token/', data={'client_id': 2, 'client_secret': 'blah', 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code'})
+    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'client_secret': 'blah', 'code': code, 'state': 'yabba', 'grant_type': 'authorization_code'})
     assert_error(response=res, status_code=401, detail='Unauthorized')
 
 def test_refresh_token_fail_grant_type(u1client):
     code = authorize(u1client=u1client)
-    res = u1client.post('/oauth2/token/', data={'client_id': 2, 'client_secret': 'password123', 'code': code, 'state': 'yabba', 'grant_type': 'booya'})
+    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'client_secret': 'password123', 'code': code, 'state': 'yabba', 'grant_type': 'booya'})
     assert_error(response=res, status_code=400, detail='Invalid')
 
 def test_access_token(u1client):
     code = authorize(u1client=u1client)
     refresh_token, access_token = tokens(u1client=u1client, code=code)
-    res = u1client.post('/oauth2/token/', data={'client_id': 2, 'client_secret': 'password123', 'refresh_token': refresh_token, 'grant_type': 'refresh_token'})
+    res = u1client.post('/auth/o/token/', data={'client_id': 2, 'client_secret': 'password123', 'refresh_token': refresh_token, 'grant_type': 'refresh_token'})
     assert_success(response=res, status_code=200)
     data = res.json()
     assert 'refresh_token' in data

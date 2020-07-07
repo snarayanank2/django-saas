@@ -22,8 +22,21 @@ from saas_framework.tpas.views import (ThirdPartyAppInstallViewSet,
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.views import WorkspaceViewSet
 from saas_framework.sharing.mixins import SharingModelViewSetMixin
+from saas_framework.tpas.views import ThirdPartyAppViewSet
 
 logger = logging.getLogger(__name__)
+
+class ThirdPartyAppViewSet(ThirdPartyAppViewSet):
+    def get_queryset(self):
+        return super().get_queryset().filter(creator=self.request.claim.user_id).order_by('-id')
+
+    def create(self, request):
+        # TODO: use perform_create
+        _mutable = request.data._mutable
+        request.data._mutable = True
+        request.data['creator_id'] = request.claim.user_id
+        request.data._mutable = _mutable
+        return super().create(request)
 
 class AttachmentViewSet(SharingModelViewSetMixin, AttachmentViewSet):
     pass
