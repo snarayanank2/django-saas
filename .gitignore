@@ -25,3 +25,5 @@ load.py
 *.png
 .coverage
 cov_html/
+
+frontend/saas/src/env.js

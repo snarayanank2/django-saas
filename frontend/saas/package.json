@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --host 0.0.0.0 --port 4200",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -21,7 +21,8 @@
     "@angular/router": "~10.0.2",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.3"
+    "zone.js": "~0.10.3",
+    "colors": "^1.1.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1000.1",
