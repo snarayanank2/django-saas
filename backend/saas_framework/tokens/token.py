@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, ParseError, PermissionDenied
 
+from saas_framework.exceptions import UnAuthorizedException
 from saas_framework.roles.models import Role
 from saas_framework.tokens.claim import Claim
 from saas_framework.tpas.models import ThirdPartyAppInstall, ThirdPartyApp
@@ -16,11 +17,6 @@ import hashlib
 import base64
 
 logger = logging.getLogger(__name__)
-
-class UnAuthorizedException(APIException):
-    status_code = 401
-    default_detail = 'Unauthorized'
-    default_code = 'unauthorized'
 
 class TokenUtils:
     REFRESH_TOKEN_EXPIRY_SEC = 30*24*3600

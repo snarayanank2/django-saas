@@ -5,8 +5,8 @@ services:
     build: 
       context: ./backend/
       dockerfile: Dockerfile.dev
-#    command: bash -c "rm -f db.sqlite3 && python manage.py migrate && python -m pytest --reuse-db && python manage.py runserver 0.0.0.0:8000"
-    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "rm -f db.sqlite3 && python manage.py migrate && python -m pytest --reuse-db && python manage.py runserver 0.0.0.0:8000"
+#    command: bash -c "python manage.py runserver 0.0.0.0:8000"
     container_name: django_saas_backend
     volumes:
       - ./backend:/django-saas-backend

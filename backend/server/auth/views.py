@@ -5,6 +5,7 @@ from django.db.models import Exists, OuterRef
 from saas_framework.roles.models import Role
 from saas_framework.workspaces.models import Workspace
 from saas_framework.workspaces.views import WorkspaceViewSet
+from saas_framework.exceptions import UnAuthorizedException
 
 logger = logging.getLogger(__name__)
 
